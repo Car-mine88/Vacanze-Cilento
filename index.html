@@ -32,7 +32,19 @@
     <input type="number" placeholder="€">
   </div>
   
-  <button>Pianifica Vacanza</button>
+ <button onclick="pianificaVacanza()">Pianifica Vacanza</button>
 </div>
+  <script>
+  function pianificaVacanza() {
+    const destinazione = document.querySelector('input[placeholder="Dove vuoi andare?"]').value;
+    const budget = document.querySelector('input[placeholder="€"]').value;
+    
+    if (destinazione && budget) {
+      alert(`Vacanza pianificata! 🎉\nDestinazione: ${destinazione}\nBudget: €${budget}`);
+    } else {
+      alert('Completa tutti i campi!');
+    }
+  }
+</script>
 </body>
 </html>
