@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Le Tue Vacanze</title>
+  <style>
+    body { 
+      font-family: Arial; 
+      background: linear-gradient(to right, #87CEEB, #E0F6FF);
+      margin: 0;
+      padding: 20px;
+    }
+    .container { 
+      max-width: 600px; 
+      margin: 0 auto; 
+    }
+    .header { 
+      text-align: center; 
+      color: #0066cc; 
+      margin-bottom: 30px; 
+    }
+    .card { 
+      background: white; 
+      border-radius: 10px; 
+      padding: 20px; 
+      margin: 15px 0; 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+    }
+    .card h3 { 
+      color: #ff6b6b; 
+    }
+    input { 
+      width: 100%; 
+      padding: 10px; 
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    button { 
+      background: #0066cc; 
+      color: white; 
+      padding: 15px 30px; 
+      border: none; 
+      border-radius: 5px; 
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+    button:hover { 
+      background: #004499; 
+    }
+    .risultato {
+      background: #d4edda;
+      border: 2px solid #28a745;
+      color: #155724;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🏖️ Le Tue Vacanze</h1>
+  </div>
+  
+  <div class="card">
+    <h3>Destinazione</h3>
+    <input type="text" id="destinazione" placeholder="Dove vuoi andare?">
+  </div>
+  
+  <div class="card">
+    <h3>Date</h3>
+    <input type="date" id="data1"> 
+    <input type="date" id="data2">
+  </div>
+  
+  <div class="card">
+    <h3>Budget</h3>
+    <input type="number" id="budget" placeholder="€">
+  </div>
+  
+  <button onclick="pianificaVacanza()">Pianifica Vacanza</button>
+  
+  <div id="risultato" class="risultato"></div>
+</div>
+
+<script>
+function pianificaVacanza() {
+  alert('Test!');
+}
+</script>
+</body>
+</html>
