@@ -92,7 +92,24 @@
 
 <script>
 function pianificaVacanza() {
-  alert('Test!');
+  const destinazione = document.getElementById('destinazione').value;
+  const data1 = document.getElementById('data1').value;
+  const data2 = document.getElementById('data2').value;
+  const budget = document.getElementById('budget').value;
+  
+  if (destinazione && data1 && data2 && budget) {
+    const risultato = document.getElementById('risultato');
+    risultato.innerHTML = `
+      <h2>✅ Vacanza Pianificata!</h2>
+      <p><strong>Destinazione:</strong> ${destinazione}</p>
+      <p><strong>Dal:</strong> ${data1}</p>
+      <p><strong>Al:</strong> ${data2}</p>
+      <p><strong>Budget:</strong> €${budget}</p>
+    `;
+    risultato.style.display = 'block';
+  } else {
+    alert('❌ Completa tutti i campi!');
+  }
 }
 </script>
 </body>
