@@ -2,7 +2,7 @@
   "name": "Pianificatore di Vacanze",
   "short_name": "Vacanze",
   "description": "Organizza ogni giorno della tua vacanza con attività e budget",
-  "start_url": "/",
+  "start_url": "/Vacanze-Cilento/,
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
