@@ -1,25 +1,3 @@
-// REPOSITORY ATTIVITÀ (predefinite)
-const attivitaRepository = {
-  giorno: [
-    { id: 1, nome: "Visita Spiaggia", luogo: "Marina di Camerota", categoria: "giorno" },
-    { id: 2, nome: "Trekking", luogo: "Monti Cilento", categoria: "giorno" },
-    { id: 3, nome: "Snorkeling", luogo: "Isola di Dino", categoria: "giorno" },
-    { id: 4, nome: "Kayak", luogo: "Fiordo di Furore", categoria: "giorno" },
-    { id: 5, nome: "Visita Centro Storico", luogo: "Salerno", categoria: "giorno" },
-    { id: 6, nome: "Escursione in Barca", luogo: "Golfo di Policastro", categoria: "giorno" },
-    { id: 7, nome: "Bicicletta", luogo: "Strada Costiera", categoria: "giorno" },
-  ],
-  sera: [
-    { id: 8, nome: "Cena al Ristorante", luogo: "Palinuro", categoria: "sera" },
-    { id: 9, nome: "Sagra Locale", luogo: "Centola", categoria: "sera" },
-    { id: 10, nome: "Concerto Live", luogo: "Piazza Municipio", categoria: "sera" },
-    { id: 11, nome: "Passeggiata Lungomare", luogo: "Ascea Marina", categoria: "sera" },
-    { id: 12, nome: "Cena Pesce", luogo: "Agropoli", categoria: "sera" },
-    { id: 13, nome: "Festival", luogo: "Vallo della Lucania", categoria: "sera" },
-    { id: 14, nome: "Gelateria", luogo: "Via Principale", categoria: "sera" },
-  ]
-};
-
 // DATI VACANZE
 let vacanze = JSON.parse(localStorage.getItem("vacanze")) || [];
 
@@ -30,7 +8,6 @@ const dataFineInput = document.getElementById("dataFineInput");
 const aggiungiVacanzaBtn = document.getElementById("aggiungiVacanzaBtn");
 const vacanzaSelect = document.getElementById("vacanzaSelect");
 const categoriaSelect = document.getElementById("categoriaSelect");
-const attivitaSelect = document.getElementById("attivitaSelect");
 const attivitaInput = document.getElementById("attivitaInput");
 const luogoInput = document.getElementById("luogoInput");
 const budgetInput = document.getElementById("budgetInput");
@@ -41,9 +18,7 @@ const totaleBudget = document.getElementById("totaleBudget");
 // EVENT LISTENERS
 aggiungiVacanzaBtn.addEventListener("click", aggiungiVacanza);
 aggiungiAttivitaBtn.addEventListener("click", aggiungiAttivita);
-vacanzaSelect.addEventListener("change", aggiorna);
-categoriaSelect.addEventListener("change", aggiornaSelezioneAttivita);
-attivitaSelect.addEventListener("change", selezionaAttivitaDaRepository);
+vacanzaSelect.addEventListener("change", aggiornaAttivita);
 
 // FUNZIONI
 
@@ -67,16 +42,11 @@ function aggiungiVacanza() {
 
   vacanze.push(vacanza);
   salvaVacanze();
-  aggiorna();
+  aggiornaSelectVacanze();
   
   vacanzaInput.value = "";
   dataInizioInput.value = "";
   dataFineInput.value = "";
-}
-
-function aggiorna() {
-  aggiornaSelectVacanze();
-  aggiornaAttivita();
 }
 
 function aggiornaSelectVacanze() {
@@ -90,45 +60,15 @@ function aggiornaSelectVacanze() {
   });
 }
 
-function aggiornaSelezioneAttivita() {
-  const categoria = categoriaSelect.value;
-  attivitaSelect.innerHTML = '<option value="">Scegli dal repository...</option>';
-  attivitaInput.value = "";
-  luogoInput.value = "";
-
-  if (categoria) {
-    const attivita = attivitaRepository[categoria] || [];
-    attivita.forEach(a => {
-      const option = document.createElement("option");
-      option.value = JSON.stringify(a);
-      option.textContent = `${a.nome} - ${a.luogo}`;
-      attivitaSelect.appendChild(option);
-    });
-  }
-}
-
-// Quando selezioni dal repository, compila i campi
-function selezionaAttivitaDaRepository() {
-  const selezionato = attivitaSelect.value;
-  if (selezionato) {
-    const attivita = JSON.parse(selezionato);
-    attivitaInput.value = attivita.nome;
-    luogoInput.value = attivita.luogo;
-  } else {
-    attivitaInput.value = "";
-    luogoInput.value = "";
-  }
-}
-
 function aggiungiAttivita() {
   const vacanzaId = vacanzaSelect.value;
   const categoria = categoriaSelect.value;
   const nomeAttivita = attivitaInput.value.trim();
   const luogo = luogoInput.value.trim();
-  const budget = budgetInput.value;
+  const budget = parseFloat(budgetInput.value) || 0;
 
   if (!vacanzaId || !categoria || !nomeAttivita || !luogo) {
-    alert("Completa tutti i campi!");
+    alert("Compila tutti i campi!");
     return;
   }
 
@@ -137,7 +77,7 @@ function aggiungiAttivita() {
     nome: nomeAttivita,
     luogo: luogo,
     categoria: categoria,
-    budget: parseFloat(budget) || 0
+    budget: budget
   };
 
   const vacanza = vacanze.find(v => v.id == vacanzaId);
@@ -148,7 +88,6 @@ function aggiungiAttivita() {
     
     // Reset form
     categoriaSelect.value = "";
-    attivitaSelect.innerHTML = '<option value="">Scegli dal repository...</option>';
     attivitaInput.value = "";
     luogoInput.value = "";
     budgetInput.value = "";
@@ -238,4 +177,4 @@ function salvaVacanze() {
 }
 
 // INIZIALIZZA
-aggiorna();
+aggiornaSelectVacanze();
