@@ -22,7 +22,7 @@
 
     <!-- SEZIONE ATTIVITÀ -->
     <div class="section">
-      <h2>Gestisci Attività</h2>
+      <h2>Aggiungi Attività</h2>
       
       <select id="vacanzaSelect">
         <option value="">Seleziona vacanza...</option>
@@ -34,17 +34,8 @@
         <option value="sera">🌙 Sera (Cena, Sagre, Eventi)</option>
       </select>
 
-      <h3>Scegli dal repository oppure inserisci manualmente:</h3>
-      
-      <select id="attivitaSelect">
-        <option value="">Scegli dal repository...</option>
-      </select>
-
-      <div style="margin-top: 10px;">
-        <input type="text" id="attivitaInput" placeholder="Nome attività">
-        <input type="text" id="luogoInput" placeholder="Luogo">
-      </div>
-
+      <input type="text" id="attivitaInput" placeholder="Nome attività">
+      <input type="text" id="luogoInput" placeholder="Luogo">
       <input type="number" id="budgetInput" placeholder="Budget (€)" step="0.01">
       <button id="aggiungiAttivitaBtn">Aggiungi Attività</button>
     </div>
