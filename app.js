@@ -1,367 +1,241 @@
-// ============================================
-// VACANZE - TRAVEL PLANNER APP
-// ============================================
+// REPOSITORY ATTIVITÀ (predefinite)
+const attivitaRepository = {
+  giorno: [
+    { id: 1, nome: "Visita Spiaggia", luogo: "Marina di Camerota", categoria: "giorno" },
+    { id: 2, nome: "Trekking", luogo: "Monti Cilento", categoria: "giorno" },
+    { id: 3, nome: "Snorkeling", luogo: "Isola di Dino", categoria: "giorno" },
+    { id: 4, nome: "Kayak", luogo: "Fiordo di Furore", categoria: "giorno" },
+    { id: 5, nome: "Visita Centro Storico", luogo: "Salerno", categoria: "giorno" },
+    { id: 6, nome: "Escursione in Barca", luogo: "Golfo di Policastro", categoria: "giorno" },
+    { id: 7, nome: "Bicicletta", luogo: "Strada Costiera", categoria: "giorno" },
+  ],
+  sera: [
+    { id: 8, nome: "Cena al Ristorante", luogo: "Palinuro", categoria: "sera" },
+    { id: 9, nome: "Sagra Locale", luogo: "Centola", categoria: "sera" },
+    { id: 10, nome: "Concerto Live", luogo: "Piazza Municipio", categoria: "sera" },
+    { id: 11, nome: "Passeggiata Lungomare", luogo: "Ascea Marina", categoria: "sera" },
+    { id: 12, nome: "Cena Pesce", luogo: "Agropoli", categoria: "sera" },
+    { id: 13, nome: "Festival", luogo: "Vallo della Lucania", categoria: "sera" },
+    { id: 14, nome: "Gelateria", luogo: "Via Principale", categoria: "sera" },
+  ]
+};
 
-// Carica i dati dal localStorage
-function loadVacations() {
-    const data = localStorage.getItem('vacations');
-    return data ? JSON.parse(data) : [];
+// DATI VACANZE
+let vacanze = JSON.parse(localStorage.getItem("vacanze")) || [];
+
+// UI ELEMENTS
+const vacanzaInput = document.getElementById("vacanzaInput");
+const dataInizioInput = document.getElementById("dataInizioInput");
+const dataFineInput = document.getElementById("dataFineInput");
+const aggiungiVacanzaBtn = document.getElementById("aggiungiVacanzaBtn");
+const vacanzaSelect = document.getElementById("vacanzaSelect");
+const categoriaSelect = document.getElementById("categoriaSelect");
+const attivitaSelect = document.getElementById("attivitaSelect");
+const attivitaInput = document.getElementById("attivitaInput");
+const luogoInput = document.getElementById("luogoInput");
+const budgetInput = document.getElementById("budgetInput");
+const aggiungiAttivitaBtn = document.getElementById("aggiungiAttivitaBtn");
+const listaAttivita = document.getElementById("listaAttivita");
+const totaleBudget = document.getElementById("totaleBudget");
+
+// EVENT LISTENERS
+aggiungiVacanzaBtn.addEventListener("click", aggiungiVacanza);
+aggiungiAttivitaBtn.addEventListener("click", aggiungiAttivita);
+vacanzaSelect.addEventListener("change", aggiorna);
+categoriaSelect.addEventListener("change", aggiornaSelezioneAttivita);
+attivitaSelect.addEventListener("change", selezionaAttivitaDaRepository);
+
+// FUNZIONI
+
+function aggiungiVacanza() {
+  const nome = vacanzaInput.value.trim();
+  const dataInizio = dataInizioInput.value;
+  const dataFine = dataFineInput.value;
+
+  if (!nome || !dataInizio || !dataFine) {
+    alert("Inserisci nome e date!");
+    return;
+  }
+
+  const vacanza = {
+    id: Date.now(),
+    nome,
+    dataInizio,
+    dataFine,
+    attivita: []
+  };
+
+  vacanze.push(vacanza);
+  salvaVacanze();
+  aggiorna();
+  
+  vacanzaInput.value = "";
+  dataInizioInput.value = "";
+  dataFineInput.value = "";
 }
 
-// Salva i dati nel localStorage
-function saveVacations(vacations) {
-    localStorage.setItem('vacations', JSON.stringify(vacations));
+function aggiorna() {
+  aggiornaSelectVacanze();
+  aggiornaAttivita();
 }
 
-let vacations = loadVacations();
-let currentVacationIndex = null;
-
-// ============================================
-// RENDER PRINCIPALE
-// ============================================
-
-function render() {
-    const app = document.getElementById('app');
-    
-    if (currentVacationIndex === null) {
-        renderVacationsList();
-    } else {
-        renderVacationDetail();
-    }
+function aggiornaSelectVacanze() {
+  vacanzaSelect.innerHTML = '<option value="">Seleziona vacanza...</option>';
+  
+  vacanze.forEach(v => {
+    const option = document.createElement("option");
+    option.value = v.id;
+    option.textContent = v.nome;
+    vacanzaSelect.appendChild(option);
+  });
 }
 
-// ============================================
-// LISTA VACANZE
-// ============================================
+function aggiornaSelezioneAttivita() {
+  const categoria = categoriaSelect.value;
+  attivitaSelect.innerHTML = '<option value="">Scegli dal repository...</option>';
+  attivitaInput.value = "";
+  luogoInput.value = "";
 
-function renderVacationsList() {
-    const app = document.getElementById('app');
-    
-    app.innerHTML = `
-        <div class="container">
-            <h1>🏖️ Le Mie Vacanze</h1>
-            
-            <div class="vacations-grid">
-                ${vacations.map((v, i) => `
-                    <div class="vacation-card" onclick="selectVacation(${i})">
-                        <h3>${v.nome}</h3>
-                        <p>📍 ${v.destinazione}</p>
-                        <p>📅 ${v.dataInizio} → ${v.dataFine}</p>
-                        <p>💰 €${v.budget}</p>
-                        <small>${v.giorni.length} giorni</small>
-                    </div>
-                `).join('')}
-                
-                <div class="vacation-card add-card" onclick="openNewVacationForm()">
-                    <h3>➕ Nuova Vacanza</h3>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// ============================================
-// DETTAGLIO VACANZA
-// ============================================
-
-function renderVacationDetail() {
-    const v = vacations[currentVacationIndex];
-    const app = document.getElementById('app');
-    
-    const totalSpent = v.giorni.reduce((sum, day) => 
-        sum + day.attivita.reduce((daySum, act) => daySum + (parseFloat(act.costo) || 0), 0), 0
-    );
-    
-    const totalActivities = v.giorni.reduce((sum, day) => sum + day.attivita.length, 0);
-    
-    app.innerHTML = `
-        <div class="container">
-            <button class="back-btn" onclick="backToList()">← Torna</button>
-            
-            <h1>${v.nome}</h1>
-            <p>📍 ${v.destinazione} | 📅 ${v.dataInizio} → ${v.dataFine}</p>
-            
-            <div class="stats">
-                <div class="stat">
-                    <strong>Budget:</strong> €${v.budget}
-                </div>
-                <div class="stat">
-                    <strong>Speso:</strong> €${totalSpent.toFixed(2)}
-                </div>
-                <div class="stat">
-                    <strong>Attività:</strong> ${totalActivities}
-                </div>
-            </div>
-            
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('itinerary')">📋 Itinerario</button>
-                <button class="tab-btn" onclick="switchTab('budget')">💰 Budget</button>
-                <button class="tab-btn" onclick="switchTab('settings')">⚙️ Impostazioni</button>
-            </div>
-            
-            <div id="tab-content"></div>
-        </div>
-    `;
-    
-    switchTab('itinerary');
-}
-
-// ============================================
-// TAB SWITCHING
-// ============================================
-
-function switchTab(tab) {
-    const v = vacations[currentVacationIndex];
-    const content = document.getElementById('tab-content');
-    
-    if (tab === 'itinerary') {
-        content.innerHTML = renderItinerary(v);
-    } else if (tab === 'budget') {
-        content.innerHTML = renderBudget(v);
-    } else if (tab === 'settings') {
-        content.innerHTML = renderSettings(v);
-    }
-    
-    // Aggiorna i bottoni tab
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-}
-
-// ============================================
-// TAB: ITINERARY
-// ============================================
-
-function renderItinerary(v) {
-    return `
-        <div class="itinerary">
-            ${v.giorni.map((day, dayIdx) => `
-                <div class="day-section">
-                    <h3>📅 Giorno ${dayIdx + 1} - ${day.data}</h3>
-                    
-                    <div class="activities">
-                        ${day.attivita.map((act, actIdx) => `
-                            <div class="activity-item">
-                                <div class="activity-header">
-                                    <strong>${act.nome}</strong>
-                                    <button class="delete-btn" onclick="deleteActivity(${dayIdx}, ${actIdx})">❌</button>
-                                </div>
-                                <p>📍 ${act.location}</p>
-                                <p>${act.descrizione}</p>
-                                <p>💰 €${act.costo}</p>
-                                ${act.url ? `<a href="${act.url}" target="_blank">🔗 Link</a>` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
-                    
-                    <button class="add-activity-btn" onclick="openActivityForm(${dayIdx})">➕ Aggiungi Attività</button>
-                </div>
-            `).join('')}
-            
-            <button class="add-day-btn" onclick="addDay()">➕ Aggiungi Giorno</button>
-        </div>
-    `;
-}
-
-// ============================================
-// TAB: BUDGET
-// ============================================
-
-function renderBudget(v) {
-    const totalSpent = v.giorni.reduce((sum, day) => 
-        sum + day.attivita.reduce((daySum, act) => daySum + (parseFloat(act.costo) || 0), 0), 0
-    );
-    const remaining = v.budget - totalSpent;
-    const percentage = (totalSpent / v.budget * 100).toFixed(1);
-    
-    return `
-        <div class="budget-section">
-            <div class="budget-bar">
-                <div class="progress" style="width: ${Math.min(percentage, 100)}%"></div>
-            </div>
-            <p>${percentage}% utilizzato</p>
-            
-            <div class="budget-details">
-                <p>💰 Budget: €${v.budget}</p>
-                <p>💸 Speso: €${totalSpent.toFixed(2)}</p>
-                <p>💵 Rimasto: €${remaining.toFixed(2)}</p>
-            </div>
-            
-            <h4>Spesa per giorno:</h4>
-            <ul>
-                ${v.giorni.map((day, idx) => {
-                    const daySpent = day.attivita.reduce((sum, act) => sum + (parseFloat(act.costo) || 0), 0);
-                    return `<li>Giorno ${idx + 1}: €${daySpent.toFixed(2)}</li>`;
-                }).join('')}
-            </ul>
-        </div>
-    `;
-}
-
-// ============================================
-// TAB: SETTINGS
-// ============================================
-
-function renderSettings(v) {
-    return `
-        <div class="settings-section">
-            <button class="edit-btn" onclick="editVacation()">✏️ Modifica Vacanza</button>
-            <button class="delete-btn" onclick="deleteVacation()">🗑️ Elimina Vacanza</button>
-            <button class="export-btn" onclick="exportData()">📥 Esporta Dati</button>
-        </div>
-    `;
-}
-
-// ============================================
-// FORM: NUOVA VACANZA
-// ============================================
-
-function openNewVacationForm() {
-    const nome = prompt('Nome vacanza:');
-    if (!nome) return;
-    
-    const destinazione = prompt('Destinazione:');
-    const dataInizio = prompt('Data inizio (YYYY-MM-DD):');
-    const dataFine = prompt('Data fine (YYYY-MM-DD):');
-    const budget = prompt('Budget (€):');
-    
-    vacations.push({
-        nome,
-        destinazione,
-        dataInizio,
-        dataFine,
-        budget: parseFloat(budget) || 0,
-        giorni: []
+  if (categoria) {
+    const attivita = attivitaRepository[categoria] || [];
+    attivita.forEach(a => {
+      const option = document.createElement("option");
+      option.value = JSON.stringify(a);
+      option.textContent = `${a.nome} - ${a.luogo}`;
+      attivitaSelect.appendChild(option);
     });
-    
-    saveVacations(vacations);
-    currentVacationIndex = vacations.length - 1;
-    render();
+  }
 }
 
-// ============================================
-// FORM: NUOVA ATTIVITÀ
-// ============================================
+// Quando selezioni dal repository, compila i campi
+function selezionaAttivitaDaRepository() {
+  const selezionato = attivitaSelect.value;
+  if (selezionato) {
+    const attivita = JSON.parse(selezionato);
+    attivitaInput.value = attivita.nome;
+    luogoInput.value = attivita.luogo;
+  } else {
+    attivitaInput.value = "";
+    luogoInput.value = "";
+  }
+}
 
-function openActivityForm(dayIdx) {
-    const nome = prompt('Nome attività:');
-    if (!nome) return;
+function aggiungiAttivita() {
+  const vacanzaId = vacanzaSelect.value;
+  const categoria = categoriaSelect.value;
+  const nomeAttivita = attivitaInput.value.trim();
+  const luogo = luogoInput.value.trim();
+  const budget = budgetInput.value;
+
+  if (!vacanzaId || !categoria || !nomeAttivita || !luogo) {
+    alert("Completa tutti i campi!");
+    return;
+  }
+
+  const attivita = {
+    id: Date.now(),
+    nome: nomeAttivita,
+    luogo: luogo,
+    categoria: categoria,
+    budget: parseFloat(budget) || 0
+  };
+
+  const vacanza = vacanze.find(v => v.id == vacanzaId);
+  if (vacanza) {
+    vacanza.attivita.push(attivita);
+    salvaVacanze();
+    aggiornaAttivita();
     
-    const location = prompt('Luogo:');
-    const descrizione = prompt('Descrizione:');
-    const costo = prompt('Costo (€):');
-    const url = prompt('Link (opzionale):');
-    
-    if (!vacations[currentVacationIndex].giorni[dayIdx]) {
-        vacations[currentVacationIndex].giorni[dayIdx] = { data: '', attivita: [] };
-    }
-    
-    vacations[currentVacationIndex].giorni[dayIdx].attivita.push({
-        nome,
-        location,
-        descrizione,
-        costo: parseFloat(costo) || 0,
-        url
+    // Reset form
+    categoriaSelect.value = "";
+    attivitaSelect.innerHTML = '<option value="">Scegli dal repository...</option>';
+    attivitaInput.value = "";
+    luogoInput.value = "";
+    budgetInput.value = "";
+  }
+}
+
+function aggiornaAttivita() {
+  const vacanzaId = vacanzaSelect.value;
+  listaAttivita.innerHTML = "";
+
+  if (!vacanzaId) {
+    totaleBudget.textContent = "0.00";
+    return;
+  }
+
+  const vacanza = vacanze.find(v => v.id == vacanzaId);
+  if (!vacanza) return;
+
+  // Dividi attività per categoria
+  const attivitaGiorno = vacanza.attivita.filter(a => a.categoria === "giorno");
+  const attivitaSera = vacanza.attivita.filter(a => a.categoria === "sera");
+
+  // Mostra attività GIORNO
+  if (attivitaGiorno.length > 0) {
+    const titolo = document.createElement("h4");
+    titolo.textContent = "☀️ Attività Giorno";
+    titolo.style.color = "#FFA500";
+    listaAttivita.appendChild(titolo);
+
+    attivitaGiorno.forEach((a, index) => {
+      const li = creaElementoAttivita(a, vacanza.id, index, "giorno");
+      listaAttivita.appendChild(li);
     });
-    
-    saveVacations(vacations);
-    render();
-}
+  }
 
-// ============================================
-// AGGIUNGI GIORNO
-// ============================================
+  // Mostra attività SERA
+  if (attivitaSera.length > 0) {
+    const titolo = document.createElement("h4");
+    titolo.textContent = "🌙 Attività Sera";
+    titolo.style.color = "#1a1a2e";
+    listaAttivita.appendChild(titolo);
 
-function addDay() {
-    const data = prompt('Data giorno (YYYY-MM-DD):');
-    if (!data) return;
-    
-    vacations[currentVacationIndex].giorni.push({
-        data,
-        attivita: []
+    attivitaSera.forEach((a, index) => {
+      const li = creaElementoAttivita(a, vacanza.id, index, "sera");
+      listaAttivita.appendChild(li);
     });
+  }
+
+  // Calcola budget totale
+  const totale = vacanza.attivita.reduce((sum, a) => sum + (a.budget || 0), 0);
+  totaleBudget.textContent = totale.toFixed(2);
+}
+
+function creaElementoAttivita(attivita, vacanzaId, index, categoria) {
+  const li = document.createElement("li");
+  li.className = `attivita-item ${categoria}`;
+  li.style.borderLeft = categoria === "giorno" ? "5px solid #FFA500" : "5px solid #1a1a2e";
+  li.style.padding = "10px";
+  li.style.marginBottom = "10px";
+  li.style.backgroundColor = categoria === "giorno" ? "#fff9e6" : "#f0f0f0";
+  li.style.borderRadius = "5px";
+
+  li.innerHTML = `
+    <strong>${attivita.nome}</strong><br>
+    📍 ${attivita.luogo}<br>
+    💰 €${(attivita.budget || 0).toFixed(2)}
+    <button onclick="eliminaAttivita(${vacanzaId}, '${categoria}', ${index})">❌ Elimina</button>
+  `;
+
+  return li;
+}
+
+function eliminaAttivita(vacanzaId, categoria, index) {
+  const vacanza = vacanze.find(v => v.id == vacanzaId);
+  if (vacanza) {
+    const attivitaFiltrata = vacanza.attivita.filter(a => a.categoria === categoria);
+    const attivitaDaEliminare = attivitaFiltrata[index];
     
-    saveVacations(vacations);
-    render();
+    vacanza.attivita = vacanza.attivita.filter(a => a !== attivitaDaEliminare);
+    salvaVacanze();
+    aggiornaAttivita();
+  }
 }
 
-// ============================================
-// ELIMINA ATTIVITÀ
-// ============================================
-
-function deleteActivity(dayIdx, actIdx) {
-    if (confirm('Elimina questa attività?')) {
-        vacations[currentVacationIndex].giorni[dayIdx].attivita.splice(actIdx, 1);
-        saveVacations(vacations);
-        render();
-    }
+function salvaVacanze() {
+  localStorage.setItem("vacanze", JSON.stringify(vacanze));
 }
 
-// ============================================
-// ELIMINA VACANZA
-// ============================================
-
-function deleteVacation() {
-    if (confirm('Eliminare questa vacanza? Non si può annullare!')) {
-        vacations.splice(currentVacationIndex, 1);
-        saveVacations(vacations);
-        currentVacationIndex = null;
-        render();
-    }
-}
-
-// ============================================
-// MODIFICA VACANZA
-// ============================================
-
-function editVacation() {
-    const v = vacations[currentVacationIndex];
-    const nome = prompt('Nome:', v.nome) || v.nome;
-    const destinazione = prompt('Destinazione:', v.destinazione) || v.destinazione;
-    const budget = prompt('Budget (€):', v.budget) || v.budget;
-    
-    v.nome = nome;
-    v.destinazione = destinazione;
-    v.budget = parseFloat(budget);
-    
-    saveVacations(vacations);
-    render();
-}
-
-// ============================================
-// ESPORTA DATI
-// ============================================
-
-function exportData() {
-    const data = JSON.stringify(vacations, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'vacanze.json';
-    a.click();
-}
-
-// ============================================
-// NAVIGAZIONE
-// ============================================
-
-function selectVacation(index) {
-    currentVacationIndex = index;
-    render();
-}
-
-function backToList() {
-    currentVacationIndex = null;
-    render();
-}
-
-// ============================================
-// INIT
-// ============================================
-
-render();
-
-// Service Worker Registration
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js').catch(err => console.log(err));
-}
+// INIZIALIZZA
+aggiorna();
