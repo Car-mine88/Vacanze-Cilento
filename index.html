@@ -1,115 +1,536 @@
 <!DOCTYPE html>
-<html lang="it" data-theme="light">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Vacanze Cilento - Pianifica e gestisci le tue vacanze con facilità">
-  <meta name="theme-color" content="#6366f1">
-  
-  <title>🏖️ Vacanze Cilento</title>
-  
+  <title>Le Tue Vacanze - Pianificatore</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #87CEEB, #E0F6FF);
+      padding: 20px;
+    }
+    .container { 
+      max-width: 900px; 
+      margin: 0 auto; 
+    }
+    .header { 
+      text-align: center; 
+      color: #0066cc; 
+      margin-bottom: 30px; 
+    }
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #ddd;
+    }
+    .tab-btn {
+      padding: 12px 20px;
+      border: none;
+      background: #f0f0f0;
+      cursor: pointer;
+      font-size: 14px;
+      border-radius: 5px 5px 0 0;
+    }
+    .tab-btn.active {
+      background: #0066cc;
+      color: white;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .card { 
+      background: white; 
+      border-radius: 10px; 
+      padding: 20px; 
+      margin: 15px 0; 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+    }
+    .card h3 { 
+      color: #ff6b6b;
+      margin-bottom: 15px;
+    }
+    .form-group {
+      margin: 15px 0;
+    }
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    input, textarea, select { 
+      width: 100%; 
+      padding: 10px; 
+      margin: 5px 0 15px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-family: Arial;
+      font-size: 14px;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    button { 
+      background: #0066cc; 
+      color: white; 
+      padding: 12px 25px; 
+      border: none; 
+      border-radius: 5px; 
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+    button:hover { 
+      background: #004499; 
+    }
+    button.danger {
+      background: #ff6b6b;
+    }
+    button.danger:hover {
+      background: #cc0000;
+    }
+    button.secondary {
+      background: #6c757d;
+    }
+    button.secondary:hover {
+      background: #545b62;
+    }
+    .vacanza-card {
+      background: #f9f9f9;
+      border-left: 4px solid #0066cc;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 5px;
+    }
+    .vacanza-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .vacanza-header h4 {
+      color: #0066cc;
+      margin: 0;
+    }
+    .giorno-card {
+      background: #e8f4f8;
+      border-left: 4px solid #17a2b8;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+    .giorno-header {
+      font-weight: bold;
+      color: #17a2b8;
+      margin-bottom: 10px;
+    }
+    .attivita-item {
+      background: white;
+      border: 1px solid #ddd;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 5px;
+    }
+    .attivita-item h5 {
+      color: #ff6b6b;
+      margin: 0 0 5px 0;
+    }
+    .attivita-item p {
+      margin: 3px 0;
+      font-size: 13px;
+    }
+    .attivita-item a {
+      color: #0066cc;
+      text-decoration: none;
+    }
+    .attivita-item a:hover {
+      text-decoration: underline;
+    }
+    .costo {
+      color: #28a745;
+      font-weight: bold;
+    }
+    .empty-state {
+      text-align: center;
+      color: #999;
+      padding: 30px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .stat {
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 13px;
+    }
+    .stat strong {
+      display: block;
+      color: #0066cc;
+    }
+  </style>
+  <meta name="theme-color" content="#0066cc">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Vacanze">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%236366f1' width='180' height='180'/><text x='50%' y='50%' font-size='100' fill='white' text-anchor='middle' dy='.3em'>🏖️</text></svg>">
-  
-  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230066cc' width='192' height='192'/><text x='50%' y='50%' font-size='80' fill='white' text-anchor='middle' dy='.3em' font-family='Arial' font-weight='bold'>✈️</text></svg>">
 </head>
 <body>
-  <!-- HEADER -->
-  <header class="header">
-    <div class="container">
-      <div class="header-left">
-        <h1 class="logo">🏖️ Vacanze Cilento</h1>
-      </div>
-      
-      <div class="header-right">
-        <button id="darkModeToggle" class="btn-icon" title="Modalità scura">
-          <span id="darkModeIcon">🌙</span>
-        </button>
-        
-        <button id="exportBtn" class="btn btn-secondary" title="Esporta tutte le vacanze">
-          📥 Esporta
-        </button>
-        
-        <button id="importBtn" class="btn btn-secondary" title="Importa vacanze">
-          📤 Importa
-        </button>
-        
-        <button id="shareBtn" class="btn btn-secondary" title="Condividi vacanza">
-          🔗 Condividi
-        </button>
-
-        <input type="file" id="fileInput" accept=".json" style="display: none;">
-      </div>
-    </div>
-  </header>
-
+<div class="container">
+  <div class="header">
+    <h1>🏖️ Pianificatore di Vacanze</h1>
+    <p>Organizza ogni giorno della tua vacanza</p>
+  </div>
+  
   <!-- TABS -->
   <div class="tabs">
-    <div class="container">
-      <button data-tab="create" class="tab-btn active">➕ Nuova Vacanza</button>
-      <button data-tab="manage" class="tab-btn">📋 Gestisci Vacanze</button>
-    </div>
+    <button class="tab-btn active" onclick="switchTab('nuova')">➕ Nuova Vacanza</button>
+    <button class="tab-btn" onclick="switchTab('gestione')">✏️ Gestisci Vacanze</button>
   </div>
 
-  <!-- MAIN CONTENT -->
-  <main class="main">
-    <div class="container">
+  <!-- TAB: NUOVA VACANZA -->
+  <div id="nuova" class="tab-content active">
+    <div class="card">
+      <h3>Crea una Nuova Vacanza</h3>
       
-      <!-- TAB: CREATE VACATION -->
-      <div id="create-content" class="tab-content active">
-        <h2>Crea una Nuova Vacanza</h2>
-        <button id="createVacationBtn" class="btn btn-primary btn-large">
-          ➕ Nuova Vacanza
-        </button>
+      <div class="form-group">
+        <label>Nome Vacanza (es: Estate 2024)</label>
+        <input type="text" id="nomeVacanza" placeholder="Es: Vacanza in Toscana">
+      </div>
 
-        <div class="vacations-grid">
-          <h3>Le tue vacanze:</h3>
-          <div id="vacationsList"></div>
+      <div class="form-group">
+        <label>Destinazione Principale</label>
+        <input type="text" id="destinazione" placeholder="Es: Roma, Italia">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label>Data Inizio</label>
+          <input type="date" id="dataInizio">
+        </div>
+        <div class="form-group">
+          <label>Data Fine</label>
+          <input type="date" id="dataFine">
         </div>
       </div>
 
-      <!-- TAB: MANAGE VACATIONS -->
-      <div id="manage-content" class="tab-content">
-        <div id="vacationDetail" class="detail-container">
-          <p class="empty-state">👈 Seleziona una vacanza dalla lista per iniziare!</p>
+      <div class="form-group">
+        <label>Budget Totale (€)</label>
+        <input type="number" id="budgetTotale" placeholder="1000">
+      </div>
+
+      <button onclick="creaVacanza()">✅ Crea Vacanza</button>
+    </div>
+  </div>
+
+  <!-- TAB: GESTIONE VACANZE -->
+  <div id="gestione" class="tab-content">
+    <div id="listaVacanze"></div>
+  </div>
+
+</div>
+
+<script>
+// SWITCH TAB
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById(tabName).classList.add('active');
+  event.target.classList.add('active');
+  
+  if (tabName === 'gestione') {
+    mostraVacanze();
+  }
+}
+
+// CREA VACANZA
+function creaVacanza() {
+  const nomeVacanza = document.getElementById('nomeVacanza').value;
+  const destinazione = document.getElementById('destinazione').value;
+  const dataInizio = document.getElementById('dataInizio').value;
+  const dataFine = document.getElementById('dataFine').value;
+  const budgetTotale = document.getElementById('budgetTotale').value;
+
+  if (!nomeVacanza || !destinazione || !dataInizio || !dataFine || !budgetTotale) {
+    alert('❌ Completa tutti i campi!');
+    return;
+  }
+
+  const vacanze = JSON.parse(localStorage.getItem('vacanze')) || [];
+  const nuovaVacanza = {
+    id: Date.now(),
+    nomeVacanza,
+    destinazione,
+    dataInizio,
+    dataFine,
+    budgetTotale,
+    giorni: generaGiorni(dataInizio, dataFine)
+  };
+
+  vacanze.push(nuovaVacanza);
+  localStorage.setItem('vacanze', JSON.stringify(vacanze));
+
+  alert('✅ Vacanza creata! Ora aggiungi le attività.');
+  document.getElementById('nomeVacanza').value = '';
+  document.getElementById('destinazione').value = '';
+  document.getElementById('dataInizio').value = '';
+  document.getElementById('dataFine').value = '';
+  document.getElementById('budgetTotale').value = '';
+
+  switchTab('gestione');
+}
+
+// GENERA GIORNI
+function generaGiorni(dataInizio, dataFine) {
+  const giorni = [];
+  const start = new Date(dataInizio);
+  const end = new Date(dataFine);
+  
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    giorni.push({
+      data: new Date(d).toISOString().split('T')[0],
+      attivita: []
+    });
+  }
+  return giorni;
+}
+
+// MOSTRA VACANZE
+function mostraVacanze() {
+  const vacanze = JSON.parse(localStorage.getItem('vacanze')) || [];
+  const listaDiv = document.getElementById('listaVacanze');
+  listaDiv.innerHTML = '';
+
+  if (vacanze.length === 0) {
+    listaDiv.innerHTML = '<div class="empty-state">📭 Nessuna vacanza. Creane una!</div>';
+    return;
+  }
+
+  vacanze.forEach(vacanza => {
+    const budgetSpeso = calcolaBudgetSpeso(vacanza);
+    const vacanzaDiv = document.createElement('div');
+    vacanzaDiv.className = 'vacanza-card';
+    
+    vacanzaDiv.innerHTML = `
+      <div class="vacanza-header">
+        <div>
+          <h4>🏨 ${vacanza.nomeVacanza}</h4>
+          <p style="margin: 5px 0; color: #666;">📍 ${vacanza.destinazione} | ${vacanza.dataInizio} → ${vacanza.dataFine}</p>
+        </div>
+        <button class="danger" onclick="eliminaVacanza(${vacanza.id})">🗑️ Elimina</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <strong>Budget: €${vacanza.budgetTotale}</strong>
+          <span>Speso: €${budgetSpeso}</span>
+        </div>
+        <div class="stat">
+          <strong>Attività: ${contaggiaAttivita(vacanza)}</strong>
+          <span>Giorni: ${vacanza.giorni.length}</span>
         </div>
       </div>
 
-    </div>
-  </main>
+      <div id="giorni-${vacanza.id}"></div>
+    `;
 
-  <!-- SHARE MODAL -->
-  <div id="qrCodeContainer" class="share-modal-content" style="display: none;">
-    <h3>Condividi la tua vacanza</h3>
-    <div id="qrCode"></div>
-    <input type="text" id="shareLink" readonly placeholder="Link di condivisione">
-    <button onclick="document.getElementById('shareLink').select(); document.execCommand('copy');" class="btn btn-small">
-      📋 Copia Link
-    </button>
-  </div>
+    listaDiv.appendChild(vacanzaDiv);
+    mostraGiorni(vacanza);
+  });
+}
 
-  <!-- ACTIVITY/VACATION MODAL -->
-  <div id="activityModal" class="modal">
-    <!-- Contenuto dinamico -->
-  </div>
+// MOSTRA GIORNI
+function mostraGiorni(vacanza) {
+  const giorniDiv = document.getElementById(`giorni-${vacanza.id}`);
+  giorniDiv.innerHTML = '';
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="container">
-      <p>🏖️ Vacanze Cilento v2.0 | Pianifica con stile!</p>
-      <p>💾 Tutti i dati sono salvati localmente sul tuo dispositivo</p>
-    </div>
-  </footer>
+  vacanza.giorni.forEach((giorno, indexGiorno) => {
+    const giornoNum = indexGiorno + 1;
+    const costoDelta = giorno.attivita.reduce((sum, a) => sum + (parseFloat(a.costo) || 0), 0);
 
-  <!-- SCRIPTS -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="app.js"></script>
-  <script>
-    // Service Worker Registration
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    const giornoDiv = document.createElement('div');
+    giornoDiv.className = 'giorno-card';
+    
+    giornoDiv.innerHTML = `
+      <div class="giorno-header">
+        📅 Giorno ${giornoNum} - ${new Date(giorno.data).toLocaleDateString('it-IT', {weekday: 'long', month: 'long', day: 'numeric'})}
+        <span style="float: right; color: #28a745;">💰 €${costoDelta.toFixed(2)}</span>
+      </div>
+
+      <div id="attivita-${vacanza.id}-${indexGiorno}"></div>
+
+      <button onclick="apriFormAttivita(${vacanza.id}, ${indexGiorno})">➕ Aggiungi Attività</button>
+      <div id="form-${vacanza.id}-${indexGiorno}"></div>
+    `;
+
+    giorniDiv.appendChild(giornoDiv);
+    mostraAttivita(vacanza.id, indexGiorno, giorno);
+  });
+}
+
+// MOSTRA ATTIVITÀ
+function mostraAttivita(vacanzaId, indexGiorno, giorno) {
+  const attivitaDiv = document.getElementById(`attivita-${vacanzaId}-${indexGiorno}`);
+  attivitaDiv.innerHTML = '';
+
+  if (giorno.attivita.length === 0) {
+    attivitaDiv.innerHTML = '<p style="color: #999; font-style: italic;">Nessuna attività pianificata</p>';
+    return;
+  }
+
+  giorno.attivita.forEach((attivita, indexAttivita) => {
+    const attDiv = document.createElement('div');
+    attDiv.className = 'attivita-item';
+    
+    let linkHtml = '';
+    if (attivita.link) {
+      linkHtml = `<p>🔗 <a href="${attivita.link}" target="_blank">Apri link</a></p>`;
     }
-  </script>
+
+    attDiv.innerHTML = `
+      <h5>${attivita.nome}</h5>
+      <p>📍 ${attivita.ubicazione}</p>
+      ${linkHtml}
+      <p>${attivita.descrizione}</p>
+      <p class="costo">💰 €${parseFloat(attivita.costo).toFixed(2)}</p>
+      <button class="danger" style="width: auto; padding: 5px 10px; font-size: 12px;" onclick="eliminaAttivita(${vacanzaId}, ${indexGiorno}, ${indexAttivita})">Elimina</button>
+    `;
+
+    attivitaDiv.appendChild(attDiv);
+  });
+}
+
+// APRI FORM ATTIVITÀ
+function apriFormAttivita(vacanzaId, indexGiorno) {
+  const formDiv = document.getElementById(`form-${vacanzaId}-${indexGiorno}`);
+  
+  if (formDiv.innerHTML !== '') {
+    formDiv.innerHTML = '';
+    return;
+  }
+
+  formDiv.innerHTML = `
+    <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 10px;">
+      <div class="form-group">
+        <label>Nome Attività</label>
+        <input type="text" id="nomeAtt-${vacanzaId}-${indexGiorno}" placeholder="Es: Colosseo">
+      </div>
+      <div class="form-group">
+        <label>Ubicazione/Indirizzo</label>
+        <input type="text" id="ubicAtt-${vacanzaId}-${indexGiorno}" placeholder="Es: Via del Colosseo, Roma">
+      </div>
+      <div class="form-group">
+        <label>Link (opzionale)</label>
+        <input type="url" id="linkAtt-${vacanzaId}-${indexGiorno}" placeholder="https://...">
+      </div>
+      <div class="form-group">
+        <label>Descrizione</label>
+        <textarea id="descAtt-${vacanzaId}-${indexGiorno}" placeholder="Note su questa attività..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Costo (€)</label>
+        <input type="number" id="costoAtt-${vacanzaId}-${indexGiorno}" placeholder="0" step="0.01">
+      </div>
+      <button onclick="salvaAttivita(${vacanzaId}, ${indexGiorno})">✅ Salva</button>
+      <button class="secondary" onclick="document.getElementById('form-${vacanzaId}-${indexGiorno}').innerHTML = ''">Annulla</button>
+    </div>
+  `;
+}
+
+// SALVA ATTIVITÀ
+function salvaAttivita(vacanzaId, indexGiorno) {
+  const nome = document.getElementById(`nomeAtt-${vacanzaId}-${indexGiorno}`).value;
+  const ubicazione = document.getElementById(`ubicAtt-${vacanzaId}-${indexGiorno}`).value;
+  const link = document.getElementById(`linkAtt-${vacanzaId}-${indexGiorno}`).value;
+  const descrizione = document.getElementById(`descAtt-${vacanzaId}-${indexGiorno}`).value;
+  const costo = document.getElementById(`costoAtt-${vacanzaId}-${indexGiorno}`).value || '0';
+
+  if (!nome || !ubicazione) {
+    alert('❌ Inserisci nome e ubicazione!');
+    return;
+  }
+
+  const vacanze = JSON.parse(localStorage.getItem('vacanze')) || [];
+  const vacanza = vacanze.find(v => v.id === vacanzaId);
+  
+  if (vacanza) {
+    vacanza.giorni[indexGiorno].attivita.push({
+      nome,
+      ubicazione,
+      link,
+      descrizione,
+      costo: parseFloat(costo)
+    });
+
+    localStorage.setItem('vacanze', JSON.stringify(vacanze));
+    mostraVacanze();
+  }
+}
+
+// ELIMINA ATTIVITÀ
+function eliminaAttivita(vacanzaId, indexGiorno, indexAttivita) {
+  const vacanze = JSON.parse(localStorage.getItem('vacanze')) || [];
+  const vacanza = vacanze.find(v => v.id === vacanzaId);
+  
+  if (vacanza) {
+    vacanza.giorni[indexGiorno].attivita.splice(indexAttivita, 1);
+    localStorage.setItem('vacanze', JSON.stringify(vacanze));
+    mostraVacanze();
+  }
+}
+
+// ELIMINA VACANZA
+function eliminaVacanza(vacanzaId) {
+  if (!confirm('❓ Sei sicuro di voler eliminare questa vacanza?')) return;
+  
+  let vacanze = JSON.parse(localStorage.getItem('vacanze')) || [];
+  vacanze = vacanze.filter(v => v.id !== vacanzaId);
+  localStorage.setItem('vacanze', JSON.stringify(vacanze));
+  mostraVacanze();
+}
+
+// CALCOLA BUDGET SPESO
+function calcolaBudgetSpeso(vacanza) {
+  return vacanza.giorni.reduce((sum, giorno) => {
+    return sum + giorno.attivita.reduce((subsum, att) => subsum + (parseFloat(att.costo) || 0), 0);
+  }, 0).toFixed(2);
+}
+
+// CONTA ATTIVITÀ
+function contaggiaAttivita(vacanza) {
+  return vacanza.giorni.reduce((sum, giorno) => sum + giorno.attivita.length, 0);
+}
+
+// CARICA AL LOAD
+window.onload = function() {
+  mostraVacanze();
+};
+</script>
+  <script>
+// Registra il Service Worker per funzionare offline
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => console.log('✅ Service Worker registrato'))
+      .catch(error => console.log('❌ Errore Service Worker:', error));
+  });
+}
+</script>
 </body>
 </html>
