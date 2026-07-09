@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vacanze Cilento - Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            width: auto;
+            padding: 8px 12px;
+            margin-top: 10px;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .vacation-card {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .vacation-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .vacation-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .vacation-card p {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .vacation-detail {
+            background: white;
+            padding: 20px;
+        }
+
+        .vacation-detail h2 {
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .vacation-detail h3 {
+            color: #667eea;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .vacation-detail h4 {
+            color: #555;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .vacation-detail h5 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .vacation-detail p {
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .day-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .activity-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .photo-gallery {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .photo-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .btn-delete-photo {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.8em;
+            padding: 0;
+        }
+
+        .photo-input {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .budget-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .budget-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .budget-item p {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .settings-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .settings-group h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✈️ Vacanze Cilento</h1>
+            <p>Organizza le tue vacanze con stile</p>
+        </div>
+
+        <div class="content">
+            <!-- SIDEBAR: CREAZIONE VACANZA -->
+            <div class="sidebar">
+                <h2 style="margin-bottom: 20px; color: #333;">Nuova Vacanza</h2>
+
+                <div class="form-group">
+                    <label>Nome Vacanza</label>
+                    <input type="text" id="vacationName" placeholder="Es: Estate 2024">
+                </div>
+
+                <div class="form-group">
+                    <label>Data Inizio</label>
+                    <input type="date" id="startDate">
+                </div>
+
+                <div class="form-group">
+                    <label>Data Fine</label>
+                    <input type="date" id="endDate">
+                </div>
+
+                <div class="form-group">
+                    <label>Budget Totale (€)</label>
+                    <input type="number" id="budget" placeholder="0.00" step="0.01">
+                </div>
+
+                <button class="btn" id="createVacationBtn">➕ Crea Vacanza</button>
+
+                <hr style="margin: 20px 0;">
+
+                <h3 style="color: #333; margin-bottom: 15px;">Le Tue Vacanze</h3>
+                <div id="vacationList"></div>
+
+                <hr style="margin: 20px 0;">
+
+                <h3 style="color: #333; margin-bottom: 15px;">Importa/Esporta</h3>
+                <button class="btn" id="exportBtn" style="margin-bottom: 10px;">📥 Scarica Backup</button>
+                <input type="file" id="importFile" accept=".json" style="display: none;">
+                <button class="btn" onclick="document.getElementById('importFile').click();">📤 Carica Backup</button>
+            </div>
+
+            <!-- MAIN: DETTAGLI VACANZA -->
+            <div>
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('itinerary')">📅 Itinerario</button>
+                    <button class="tab-btn" onclick="switchTab('budget')">💰 Budget</button>
+                    <button class="tab-btn" onclick="switchTab('settings')">⚙️ Info</button>
+                </div>
+
+                <div id="itinerary" class="tab-content active">
+                    <div id="vacationDetail"></div>
+                </div>
+
+                <div id="budget" class="tab-content">
+                    <div id="budgetDetail"></div>
+                </div>
+
+                <div id="settings" class="tab-content">
+                    <div id="settingsDetail"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+
+    <script>
+        function switchTab(tabName) {
+            // Nascondi tutti i tab
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Mostra il tab selezionato
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Aggiorna il contenuto
+            if (tabName === 'budget') {
+                planner.renderBudgetTab();
+            } else if (tabName === 'settings') {
+                planner.renderSettingsTab();
+            }
+        }
+    </script>
+</body>
+</html>
