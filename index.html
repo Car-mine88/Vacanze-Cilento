@@ -1,536 +1,744 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Le Tue Vacanze - Pianificatore</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body { 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #87CEEB, #E0F6FF);
-      padding: 20px;
-    }
-    .container { 
-      max-width: 900px; 
-      margin: 0 auto; 
-    }
-    .header { 
-      text-align: center; 
-      color: #0066cc; 
-      margin-bottom: 30px; 
-    }
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid #ddd;
-    }
-    .tab-btn {
-      padding: 12px 20px;
-      border: none;
-      background: #f0f0f0;
-      cursor: pointer;
-      font-size: 14px;
-      border-radius: 5px 5px 0 0;
-    }
-    .tab-btn.active {
-      background: #0066cc;
-      color: white;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    .card { 
-      background: white; 
-      border-radius: 10px; 
-      padding: 20px; 
-      margin: 15px 0; 
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-    }
-    .card h3 { 
-      color: #ff6b6b;
-      margin-bottom: 15px;
-    }
-    .form-group {
-      margin: 15px 0;
-    }
-    .form-group label {
-      display: block;
-      font-weight: bold;
-      color: #333;
-      margin-bottom: 5px;
-    }
-    input, textarea, select { 
-      width: 100%; 
-      padding: 10px; 
-      margin: 5px 0 15px 0;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      font-family: Arial;
-      font-size: 14px;
-    }
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-    button { 
-      background: #0066cc; 
-      color: white; 
-      padding: 12px 25px; 
-      border: none; 
-      border-radius: 5px; 
-      cursor: pointer;
-      font-size: 14px;
-      margin-right: 10px;
-      margin-top: 10px;
-    }
-    button:hover { 
-      background: #004499; 
-    }
-    button.danger {
-      background: #ff6b6b;
-    }
-    button.danger:hover {
-      background: #cc0000;
-    }
-    button.secondary {
-      background: #6c757d;
-    }
-    button.secondary:hover {
-      background: #545b62;
-    }
-    .vacanza-card {
-      background: #f9f9f9;
-      border-left: 4px solid #0066cc;
-      padding: 15px;
-      margin: 15px 0;
-      border-radius: 5px;
-    }
-    .vacanza-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .vacanza-header h4 {
-      color: #0066cc;
-      margin: 0;
-    }
-    .giorno-card {
-      background: #e8f4f8;
-      border-left: 4px solid #17a2b8;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 5px;
-    }
-    .giorno-header {
-      font-weight: bold;
-      color: #17a2b8;
-      margin-bottom: 10px;
-    }
-    .attivita-item {
-      background: white;
-      border: 1px solid #ddd;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 5px;
-    }
-    .attivita-item h5 {
-      color: #ff6b6b;
-      margin: 0 0 5px 0;
-    }
-    .attivita-item p {
-      margin: 3px 0;
-      font-size: 13px;
-    }
-    .attivita-item a {
-      color: #0066cc;
-      text-decoration: none;
-    }
-    .attivita-item a:hover {
-      text-decoration: underline;
-    }
-    .costo {
-      color: #28a745;
-      font-weight: bold;
-    }
-    .empty-state {
-      text-align: center;
-      color: #999;
-      padding: 30px;
-    }
-    .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin: 10px 0;
-    }
-    .stat {
-      background: #f0f0f0;
-      padding: 10px;
-      border-radius: 5px;
-      font-size: 13px;
-    }
-    .stat strong {
-      display: block;
-      color: #0066cc;
-    }
-  </style>
-  <meta name="theme-color" content="#0066cc">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Vacanze">
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230066cc' width='192' height='192'/><text x='50%' y='50%' font-size='80' fill='white' text-anchor='middle' dy='.3em' font-family='Arial' font-weight='bold'>✈️</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏖️ Vacanze - Travel Planner</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#0066cc">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Vacanze">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%230066cc' width='192' height='192'/><text x='50%' y='50%' font-size='80' fill='white' text-anchor='middle' dy='.3em' font-family='Arial' font-weight='bold'>✈️</text></svg>">
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #E0F6FF 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode .header-top {
+            background: rgba(50, 50, 50, 0.95);
+        }
+
+        .header-top h1 {
+            color: #0066cc;
+            font-size: 2em;
+        }
+
+        .dark-mode-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .vacations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .vacation-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 5px solid #0066cc;
+        }
+
+        body.dark-mode .vacation-card {
+            background: #2d2d2d;
+            border-left-color: #4da6ff;
+        }
+
+        .vacation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .vacation-card h3 {
+            color: #0066cc;
+            margin-bottom: 10px;
+        }
+
+        body.dark-mode .vacation-card h3 {
+            color: #4da6ff;
+        }
+
+        .vacation-card p {
+            color: #666;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+
+        body.dark-mode .vacation-card p {
+            color: #aaa;
+        }
+
+        .card-stats {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .vacation-card small {
+            display: block;
+            color: #999;
+            margin-top: 10px;
+            font-size: 0.85em;
+        }
+
+        body.dark-mode .vacation-card small {
+            color: #777;
+        }
+
+        .add-card {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            cursor: pointer;
+            background: #f0f7ff;
+            border: 2px dashed #0066cc;
+        }
+
+        body.dark-mode .add-card {
+            background: #1a1a1a;
+            border-color: #4da6ff;
+        }
+
+        .add-card h3 {
+            font-size: 1.5em;
+        }
+
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95em;
+            margin-bottom: 20px;
+        }
+
+        .back-btn:hover {
+            background: #545b62;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 20px;
+        }
+
+        body.dark-mode .subtitle {
+            color: #aaa;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode .stat-box {
+            background: #2d2d2d;
+        }
+
+        .stat-box strong {
+            display: block;
+            color: #0066cc;
+            margin-bottom: 5px;
+        }
+
+        body.dark-mode .stat-box strong {
+            color: #4da6ff;
+        }
+
+        .stat-box span {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .spent {
+            color: #ff6b6b;
+        }
+
+        .remaining {
+            color: #28a745;
+        }
+
+        .budget-progress {
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        body.dark-mode .progress-bar {
+            background: #444;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4da6ff, #0066cc);
+            transition: width 0.3s;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            border-bottom: 2px solid #ddd;
+            flex-wrap: wrap;
+        }
+
+        body.dark-mode .tabs {
+            border-bottom-color: #444;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            font-size: 0.95em;
+            transition: all 0.2s;
+        }
+
+        body.dark-mode .tab-btn {
+            background: #1a1a1a;
+        }
+
+        .tab-btn.active {
+            background: #0066cc;
+            color: white;
+        }
+
+        .itinerary {
+            margin-top: 20px;
+        }
+
+        .day-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode .day-section {
+            background: #2d2d2d;
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        body.dark-mode .day-header {
+            border-bottom-color: #444;
+        }
+
+        .day-header h3 {
+            color: #0066cc;
+            margin: 0;
+        }
+
+        body.dark-mode .day-header h3 {
+            color: #4da6ff;
+        }
+
+        .day-cost {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .activities {
+            display: grid;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .activity-card {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #0066cc;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        body.dark-mode .activity-card {
+            background: #1a1a1a;
+            border-left-color: #4da6ff;
+        }
+
+        .activity-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .activity-header h4 {
+            color: #0066cc;
+            margin: 0;
+        }
+
+        body.dark-mode .activity-header h4 {
+            color: #4da6ff;
+        }
+
+        .time-slot {
+            background: #e8f4f8;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            color: #0066cc;
+        }
+
+        body.dark-mode .time-slot {
+            background: #1a3a4a;
+            color: #4da6ff;
+        }
+
+        .activity-card p {
+            margin: 3px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        body.dark-mode .activity-card p {
+            color: #aaa;
+        }
+
+        .activity-desc {
+            font-style: italic;
+            color: #999;
+        }
+
+        .activity-cost {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .photo-indicator {
+            color: #ff9800;
+            font-weight: bold;
+        }
+
+        .activity-card a {
+            color: #0066cc;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .activity-card a:hover {
+            text-decoration: underline;
+        }
+
+        button {
+            background: #0066cc;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95em;
+            margin: 10px 10px 10px 0;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #004499;
+        }
+
+        button.danger {
+            background: #ff6b6b;
+        }
+
+        button.danger:hover {
+            background: #cc0000;
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        button.secondary:hover {
+            background: #545b62;
+        }
+
+        button.edit-btn {
+            background: #17a2b8;
+        }
+
+        button.edit-btn:hover {
+            background: #138496;
+        }
+
+        button.export-btn {
+            background: #28a745;
+        }
+
+        button.export-btn:hover {
+            background: #218838;
+        }
+
+        button.share-btn {
+            background: #fd7e14;
+        }
+
+        button.share-btn:hover {
+            background: #e36c0f;
+        }
+
+        .add-activity-btn,
+        .add-day-btn {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .form-group {
+            margin: 15px 0;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        body.dark-mode .form-group label {
+            color: #f0f0f0;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 0.95em;
+            background: white;
+            color: #333;
+        }
+
+        body.dark-mode input,
+        body.dark-mode textarea,
+        body.dark-mode select {
+            background: #1a1a1a;
+            color: #f0f0f0;
+            border-color: #444;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .time-slots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .time-slot-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #0066cc;
+        }
+
+        body.dark-mode .time-slot-card {
+            background: #2d2d2d;
+        }
+
+        .time-slot-card h4 {
+            color: #0066cc;
+            margin-bottom: 15px;
+        }
+
+        body.dark-mode .time-slot-card h4 {
+            color: #4da6ff;
+        }
+
+        .activity-mini {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 3px solid #0066cc;
+        }
+
+        body.dark-mode .activity-mini {
+            background: #1a1a1a;
+            border-left-color: #4da6ff;
+        }
+
+        .activity-mini h5 {
+            color: #0066cc;
+            margin-bottom: 5px;
+        }
+
+        body.dark-mode .activity-mini h5 {
+            color: #4da6ff;
+        }
+
+        .activity-mini p {
+            font-size: 0.85em;
+            margin: 3px 0;
+            color: #666;
+        }
+
+        body.dark-mode .activity-mini p {
+            color: #aaa;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85em;
+            margin: 5px 5px 5px 0;
+        }
+
+        #daily-notes {
+            width: 100%;
+            min-height: 120px;
+            margin-top: 10px;
+        }
+
+        .budget-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        body.dark-mode .budget-section {
+            background: #2d2d2d;
+        }
+
+        .budget-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .budget-details p {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 0;
+        }
+
+        body.dark-mode .budget-details p {
+            background: #1a1a1a;
+        }
+
+        .day-costs {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .day-costs li {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+
+        body.dark-mode .day-costs li {
+            background: #1a1a1a;
+        }
+
+        .day-costs span:last-child {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .settings-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        body.dark-mode .settings-section {
+            background: #2d2d2d;
+        }
+
+        .settings-section h3 {
+            color: #0066cc;
+            margin-bottom: 20px;
+        }
+
+        body.dark-mode .settings-section h3 {
+            color: #4da6ff;
+        }
+
+        .settings-section button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            margin: 10px 0;
+        }
+
+        #qr-container {
+            text-align: center;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        body.dark-mode #qr-container {
+            background: #1a1a1a;
+        }
+
+        #qrcode canvas {
+            margin: 0 auto;
+        }
+
+        .map-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        body.dark-mode .map-section {
+            background: #2d2d2d;
+        }
+
+        .empty {
+            color: #999;
+            font-style: italic;
+        }
+
+        body.dark-mode .empty {
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .vacations-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .time-slots-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-top {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>🏖️ Pianificatore di Vacanze</h1>
-    <p>Organizza ogni giorno della tua vacanza</p>
-  </div>
-  
-  <!-- TABS -->
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('nuova')">➕ Nuova Vacanza</button>
-    <button class="tab-btn" onclick="switchTab('gestione')">✏️ Gestisci Vacanze</button>
-  </div>
+    <div id="app"></div>
 
-  <!-- TAB: NUOVA VACANZA -->
-  <div id="nuova" class="tab-content active">
-    <div class="card">
-      <h3>Crea una Nuova Vacanza</h3>
-      
-      <div class="form-group">
-        <label>Nome Vacanza (es: Estate 2024)</label>
-        <input type="text" id="nomeVacanza" placeholder="Es: Vacanza in Toscana">
-      </div>
-
-      <div class="form-group">
-        <label>Destinazione Principale</label>
-        <input type="text" id="destinazione" placeholder="Es: Roma, Italia">
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <div class="form-group">
-          <label>Data Inizio</label>
-          <input type="date" id="dataInizio">
-        </div>
-        <div class="form-group">
-          <label>Data Fine</label>
-          <input type="date" id="dataFine">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Budget Totale (€)</label>
-        <input type="number" id="budgetTotale" placeholder="1000">
-      </div>
-
-      <button onclick="creaVacanza()">✅ Crea Vacanza</button>
-    </div>
-  </div>
-
-  <!-- TAB: GESTIONE VACANZE -->
-  <div id="gestione" class="tab-content">
-    <div id="listaVacanze"></div>
-  </div>
-
-</div>
-
-<script>
-// SWITCH TAB
-function switchTab(tabName) {
-  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById(tabName).classList.add('active');
-  event.target.classList.add('active');
-  
-  if (tabName === 'gestione') {
-    mostraVacanze();
-  }
-}
-
-// CREA VACANZA
-function creaVacanza() {
-  const nomeVacanza = document.getElementById('nomeVacanza').value;
-  const destinazione = document.getElementById('destinazione').value;
-  const dataInizio = document.getElementById('dataInizio').value;
-  const dataFine = document.getElementById('dataFine').value;
-  const budgetTotale = document.getElementById('budgetTotale').value;
-
-  if (!nomeVacanza || !destinazione || !dataInizio || !dataFine || !budgetTotale) {
-    alert('❌ Completa tutti i campi!');
-    return;
-  }
-
-  const vacanze = JSON.parse(localStorage.getItem('vacanze')) || [];
-  const nuovaVacanza = {
-    id: Date.now(),
-    nomeVacanza,
-    destinazione,
-    dataInizio,
-    dataFine,
-    budgetTotale,
-    giorni: generaGiorni(dataInizio, dataFine)
-  };
-
-  vacanze.push(nuovaVacanza);
-  localStorage.setItem('vacanze', JSON.stringify(vacanze));
-
-  alert('✅ Vacanza creata! Ora aggiungi le attività.');
-  document.getElementById('nomeVacanza').value = '';
-  document.getElementById('destinazione').value = '';
-  document.getElementById('dataInizio').value = '';
-  document.getElementById('dataFine').value = '';
-  document.getElementById('budgetTotale').value = '';
-
-  switchTab('gestione');
-}
-
-// GENERA GIORNI
-function generaGiorni(dataInizio, dataFine) {
-  const giorni = [];
-  const start = new Date(dataInizio);
-  const end = new Date(dataFine);
-  
-  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    giorni.push({
-      data: new Date(d).toISOString().split('T')[0],
-      attivita: []
-    });
-  }
-  return giorni;
-}
-
-// MOSTRA VACANZE
-function mostraVacanze() {
-  const vacanze = JSON.parse(localStorage.getItem('vacanze')) || [];
-  const listaDiv = document.getElementById('listaVacanze');
-  listaDiv.innerHTML = '';
-
-  if (vacanze.length === 0) {
-    listaDiv.innerHTML = '<div class="empty-state">📭 Nessuna vacanza. Creane una!</div>';
-    return;
-  }
-
-  vacanze.forEach(vacanza => {
-    const budgetSpeso = calcolaBudgetSpeso(vacanza);
-    const vacanzaDiv = document.createElement('div');
-    vacanzaDiv.className = 'vacanza-card';
+    <script src="app.js"></script>
     
-    vacanzaDiv.innerHTML = `
-      <div class="vacanza-header">
-        <div>
-          <h4>🏨 ${vacanza.nomeVacanza}</h4>
-          <p style="margin: 5px 0; color: #666;">📍 ${vacanza.destinazione} | ${vacanza.dataInizio} → ${vacanza.dataFine}</p>
-        </div>
-        <button class="danger" onclick="eliminaVacanza(${vacanza.id})">🗑️ Elimina</button>
-      </div>
-
-      <div class="stats">
-        <div class="stat">
-          <strong>Budget: €${vacanza.budgetTotale}</strong>
-          <span>Speso: €${budgetSpeso}</span>
-        </div>
-        <div class="stat">
-          <strong>Attività: ${contaggiaAttivita(vacanza)}</strong>
-          <span>Giorni: ${vacanza.giorni.length}</span>
-        </div>
-      </div>
-
-      <div id="giorni-${vacanza.id}"></div>
-    `;
-
-    listaDiv.appendChild(vacanzaDiv);
-    mostraGiorni(vacanza);
-  });
-}
-
-// MOSTRA GIORNI
-function mostraGiorni(vacanza) {
-  const giorniDiv = document.getElementById(`giorni-${vacanza.id}`);
-  giorniDiv.innerHTML = '';
-
-  vacanza.giorni.forEach((giorno, indexGiorno) => {
-    const giornoNum = indexGiorno + 1;
-    const costoDelta = giorno.attivita.reduce((sum, a) => sum + (parseFloat(a.costo) || 0), 0);
-
-    const giornoDiv = document.createElement('div');
-    giornoDiv.className = 'giorno-card';
-    
-    giornoDiv.innerHTML = `
-      <div class="giorno-header">
-        📅 Giorno ${giornoNum} - ${new Date(giorno.data).toLocaleDateString('it-IT', {weekday: 'long', month: 'long', day: 'numeric'})}
-        <span style="float: right; color: #28a745;">💰 €${costoDelta.toFixed(2)}</span>
-      </div>
-
-      <div id="attivita-${vacanza.id}-${indexGiorno}"></div>
-
-      <button onclick="apriFormAttivita(${vacanza.id}, ${indexGiorno})">➕ Aggiungi Attività</button>
-      <div id="form-${vacanza.id}-${indexGiorno}"></div>
-    `;
-
-    giorniDiv.appendChild(giornoDiv);
-    mostraAttivita(vacanza.id, indexGiorno, giorno);
-  });
-}
-
-// MOSTRA ATTIVITÀ
-function mostraAttivita(vacanzaId, indexGiorno, giorno) {
-  const attivitaDiv = document.getElementById(`attivita-${vacanzaId}-${indexGiorno}`);
-  attivitaDiv.innerHTML = '';
-
-  if (giorno.attivita.length === 0) {
-    attivitaDiv.innerHTML = '<p style="color: #999; font-style: italic;">Nessuna attività pianificata</p>';
-    return;
-  }
-
-  giorno.attivita.forEach((attivita, indexAttivita) => {
-    const attDiv = document.createElement('div');
-    attDiv.className = 'attivita-item';
-    
-    let linkHtml = '';
-    if (attivita.link) {
-      linkHtml = `<p>🔗 <a href="${attivita.link}" target="_blank">Apri link</a></p>`;
-    }
-
-    attDiv.innerHTML = `
-      <h5>${attivita.nome}</h5>
-      <p>📍 ${attivita.ubicazione}</p>
-      ${linkHtml}
-      <p>${attivita.descrizione}</p>
-      <p class="costo">💰 €${parseFloat(attivita.costo).toFixed(2)}</p>
-      <button class="danger" style="width: auto; padding: 5px 10px; font-size: 12px;" onclick="eliminaAttivita(${vacanzaId}, ${indexGiorno}, ${indexAttivita})">Elimina</button>
-    `;
-
-    attivitaDiv.appendChild(attDiv);
-  });
-}
-
-// APRI FORM ATTIVITÀ
-function apriFormAttivita(vacanzaId, indexGiorno) {
-  const formDiv = document.getElementById(`form-${vacanzaId}-${indexGiorno}`);
-  
-  if (formDiv.innerHTML !== '') {
-    formDiv.innerHTML = '';
-    return;
-  }
-
-  formDiv.innerHTML = `
-    <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 10px;">
-      <div class="form-group">
-        <label>Nome Attività</label>
-        <input type="text" id="nomeAtt-${vacanzaId}-${indexGiorno}" placeholder="Es: Colosseo">
-      </div>
-      <div class="form-group">
-        <label>Ubicazione/Indirizzo</label>
-        <input type="text" id="ubicAtt-${vacanzaId}-${indexGiorno}" placeholder="Es: Via del Colosseo, Roma">
-      </div>
-      <div class="form-group">
-        <label>Link (opzionale)</label>
-        <input type="url" id="linkAtt-${vacanzaId}-${indexGiorno}" placeholder="https://...">
-      </div>
-      <div class="form-group">
-        <label>Descrizione</label>
-        <textarea id="descAtt-${vacanzaId}-${indexGiorno}" placeholder="Note su questa attività..."></textarea>
-      </div>
-      <div class="form-group">
-        <label>Costo (€)</label>
-        <input type="number" id="costoAtt-${vacanzaId}-${indexGiorno}" placeholder="0" step="0.01">
-      </div>
-      <button onclick="salvaAttivita(${vacanzaId}, ${indexGiorno})">✅ Salva</button>
-      <button class="secondary" onclick="document.getElementById('form-${vacanzaId}-${indexGiorno}').innerHTML = ''">Annulla</button>
-    </div>
-  `;
-}
-
-// SALVA ATTIVITÀ
-function salvaAttivita(vacanzaId, indexGiorno) {
-  const nome = document.getElementById(`nomeAtt-${vacanzaId}-${indexGiorno}`).value;
-  const ubicazione = document.getElementById(`ubicAtt-${vacanzaId}-${indexGiorno}`).value;
-  const link = document.getElementById(`linkAtt-${vacanzaId}-${indexGiorno}`).value;
-  const descrizione = document.getElementById(`descAtt-${vacanzaId}-${indexGiorno}`).value;
-  const costo = document.getElementById(`costoAtt-${vacanzaId}-${indexGiorno}`).value || '0';
-
-  if (!nome || !ubicazione) {
-    alert('❌ Inserisci nome e ubicazione!');
-    return;
-  }
-
-  const vacanze = JSON.parse(localStorage.getItem('vacanze')) || [];
-  const vacanza = vacanze.find(v => v.id === vacanzaId);
-  
-  if (vacanza) {
-    vacanza.giorni[indexGiorno].attivita.push({
-      nome,
-      ubicazione,
-      link,
-      descrizione,
-      costo: parseFloat(costo)
-    });
-
-    localStorage.setItem('vacanze', JSON.stringify(vacanze));
-    mostraVacanze();
-  }
-}
-
-// ELIMINA ATTIVITÀ
-function eliminaAttivita(vacanzaId, indexGiorno, indexAttivita) {
-  const vacanze = JSON.parse(localStorage.getItem('vacanze')) || [];
-  const vacanza = vacanze.find(v => v.id === vacanzaId);
-  
-  if (vacanza) {
-    vacanza.giorni[indexGiorno].attivita.splice(indexAttivita, 1);
-    localStorage.setItem('vacanze', JSON.stringify(vacanze));
-    mostraVacanze();
-  }
-}
-
-// ELIMINA VACANZA
-function eliminaVacanza(vacanzaId) {
-  if (!confirm('❓ Sei sicuro di voler eliminare questa vacanza?')) return;
-  
-  let vacanze = JSON.parse(localStorage.getItem('vacanze')) || [];
-  vacanze = vacanze.filter(v => v.id !== vacanzaId);
-  localStorage.setItem('vacanze', JSON.stringify(vacanze));
-  mostraVacanze();
-}
-
-// CALCOLA BUDGET SPESO
-function calcolaBudgetSpeso(vacanza) {
-  return vacanza.giorni.reduce((sum, giorno) => {
-    return sum + giorno.attivita.reduce((subsum, att) => subsum + (parseFloat(att.costo) || 0), 0);
-  }, 0).toFixed(2);
-}
-
-// CONTA ATTIVITÀ
-function contaggiaAttivita(vacanza) {
-  return vacanza.giorni.reduce((sum, giorno) => sum + giorno.attivita.length, 0);
-}
-
-// CARICA AL LOAD
-window.onload = function() {
-  mostraVacanze();
-};
-</script>
-  <script>
-// Registra il Service Worker per funzionare offline
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(registration => console.log('✅ Service Worker registrato'))
-      .catch(error => console.log('❌ Errore Service Worker:', error));
-  });
-}
-</script>
+    <script>
+        // Service Worker registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('✅ Service Worker registered'))
+                    .catch(err => console.log('Service Worker error:', err));
+            });
+        }
+    </script>
 </body>
 </html>
