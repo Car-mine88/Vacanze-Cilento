@@ -122,6 +122,7 @@ class VacationPlanner {
         const category = document.getElementById('category').value;
         const cost = document.getElementById('activityCost').value;
         const date = document.getElementById('activityDate').value;
+        const link = document.getElementById('activityLink').value.trim();  // ← NUOVO
 
         if (!name || !cost) {
             alert('⚠️ Compila nome e costo!');
@@ -140,6 +141,7 @@ class VacationPlanner {
             timeSlot: timeSlot,
             categoria: category,
             costo: parseFloat(cost),
+            link: link,  // ← NUOVO
             foto: []
         };
 
@@ -149,6 +151,7 @@ class VacationPlanner {
         // Ripulisci form
         document.getElementById('activityName').value = '';
         document.getElementById('activityCost').value = '';
+        document.getElementById('activityLink').value = '';  // ← NUOVO
 
         this.render();
     }
@@ -390,6 +393,11 @@ class VacationPlanner {
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label>Link/URL (opzionale)</label>
+                    <input type="url" id="activityLink" placeholder="https://..." style="width: 100%;">
+                </div>
+
                 <button class="btn" onclick="planner.addActivityFromForm(${vacation.id})">➕ Aggiungi Attività</button>
 
                 <h3 style="margin-top: 30px;">📅 Itinerario</h3>
@@ -415,6 +423,10 @@ class VacationPlanner {
                                 <span>💰 €${cost.toFixed(2)}</span>
                             </p>
                     `;
+
+                    if (activity.link) {
+                        html += `<p><a href="${activity.link}" target="_blank" style="color: #667eea; text-decoration: none; font-weight: bold;">🔗 ${activity.link}</a></p>`;
+                    }
 
                     if (activity.foto && activity.foto.length > 0) {
                         html += '<div class="photo-gallery">';
@@ -544,10 +556,11 @@ class VacationPlanner {
     getBuildStatus() {
         const totalData = JSON.stringify(localStorage).length;
         return {
-            version: '3.2-simplified-fixed',
+            version: '3.2-simplified-fixed-with-links',
             features: {
                 'Vacation Management': true,
                 'Itinerary Planning': true,
+                'Activity Links': true,
                 'Photo Support': true,
                 'Budget Tracking': true,
                 'Data Export/Import': true,
