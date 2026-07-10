@@ -389,6 +389,9 @@
     <script src="app.js"></script>
 
     <script>
+    // Istanzia l'app
+    const app = new VacationPlanner();
+    const planner = app;  // Per compatibilità con il codice esistente
         function switchTab(tabName) {
             // Nascondi tutti i tab
             document.querySelectorAll('.tab-content').forEach(tab => {
