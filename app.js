@@ -122,7 +122,7 @@ class VacationPlanner {
         const category = document.getElementById('category').value;
         const cost = document.getElementById('activityCost').value;
         const date = document.getElementById('activityDate').value;
-        const link = document.getElementById('activityLink').value.trim();  // ← NUOVO
+        const link = document.getElementById('activityLink').value.trim();
 
         if (!name || !cost) {
             alert('⚠️ Compila nome e costo!');
@@ -141,7 +141,7 @@ class VacationPlanner {
             timeSlot: timeSlot,
             categoria: category,
             costo: parseFloat(cost),
-            link: link,  // ← NUOVO
+            link: link,
             foto: []
         };
 
@@ -151,9 +151,47 @@ class VacationPlanner {
         // Ripulisci form
         document.getElementById('activityName').value = '';
         document.getElementById('activityCost').value = '';
-        document.getElementById('activityLink').value = '';  // ← NUOVO
+        document.getElementById('activityLink').value = '';
 
         this.render();
+    }
+
+    editActivity(vacationId, dayDate, activityId) {
+        const vacation = this.vacations.find(v => v.id === vacationId);
+        if (!vacation) return;
+
+        const day = vacation.giorni.find(d => d.data === dayDate);
+        if (!day) return;
+
+        const activity = day.attivita.find(a => a.id === activityId);
+        if (!activity) return;
+
+        // Crea una finestra di dialogo per modificare
+        const newName = prompt('Nome attività:', activity.nome);
+        if (newName === null) return; // Annullato
+
+        const newCost = prompt('Costo (€):', activity.costo);
+        if (newCost === null) return;
+
+        const newLink = prompt('Link/URL (opzionale):', activity.link || '');
+        if (newLink === null) return;
+
+        const newTimeSlot = prompt('Orario (mattina/pomeriggio/sera):', activity.timeSlot);
+        if (newTimeSlot === null) return;
+
+        const newCategory = prompt('Categoria (alloggio/ristorazione/trasporto/attrazione/shopping/altro):', activity.categoria);
+        if (newCategory === null) return;
+
+        // Aggiorna l'attività
+        activity.nome = newName.trim() || activity.nome;
+        activity.costo = parseFloat(newCost) || activity.costo;
+        activity.link = newLink.trim();
+        activity.timeSlot = newTimeSlot || activity.timeSlot;
+        activity.categoria = newCategory || activity.categoria;
+
+        this.saveToStorage();
+        this.render();
+        alert('✅ Attività modificata!');
     }
 
     deleteActivity(vacationId, dayDate, activityId) {
@@ -443,7 +481,10 @@ class VacationPlanner {
 
                     html += `
                             <input type="file" accept="image/*" onchange="planner.handlePhotoUpload(event, ${vacation.id}, '${day.data}', ${activity.id})" class="photo-input" style="font-size: 0.9em;">
-                            <button class="btn-delete" onclick="planner.deleteActivity(${vacation.id}, '${day.data}', ${activity.id})">🗑️ Elimina Attività</button>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                                <button class="btn" onclick="planner.editActivity(${vacation.id}, '${day.data}', ${activity.id})">✏️ Modifica</button>
+                                <button class="btn-delete" onclick="planner.deleteActivity(${vacation.id}, '${day.data}', ${activity.id})">🗑️ Elimina</button>
+                            </div>
                         </div>
                     `;
                 });
@@ -556,11 +597,12 @@ class VacationPlanner {
     getBuildStatus() {
         const totalData = JSON.stringify(localStorage).length;
         return {
-            version: '3.2-simplified-fixed-with-links',
+            version: '3.4-with-edit-activity',
             features: {
                 'Vacation Management': true,
                 'Itinerary Planning': true,
                 'Activity Links': true,
+                'Activity Editing': true,
                 'Photo Support': true,
                 'Budget Tracking': true,
                 'Data Export/Import': true,
