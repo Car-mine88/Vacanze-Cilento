@@ -1,648 +1,441 @@
-class VacationPlanner {
-    constructor() {
-        this.vacations = [];
-        this.currentVacationId = null;
-        this.init();
-    }
-
-    init() {
-        this.loadFromStorage();
-        this.setupEventListeners();
-        this.render();
-    }
-
-    loadFromStorage() {
-        try {
-            const data = localStorage.getItem('vacationsData');
-            this.vacations = data ? JSON.parse(data) : [];
-        } catch (e) {
-            console.error('Errore caricamento:', e);
-            this.vacations = [];
-        }
-    }
-
-    saveToStorage() {
-        try {
-            localStorage.setItem('vacationsData', JSON.stringify(this.vacations));
-        } catch (e) {
-            console.error('Errore salvataggio:', e);
-            alert('Memoria piena! Elimina alcune foto.');
-        }
-    }
-
-    setupEventListeners() {
-        // Bottone creazione vacanza
-        const createBtn = document.getElementById('createVacationBtn');
-        if (createBtn) {
-            createBtn.addEventListener('click', () => this.handleCreateVacation());
-        }
-
-        // Export
-        const exportBtn = document.getElementById('exportBtn');
-        if (exportBtn) {
-            exportBtn.addEventListener('click', () => this.exportJSON());
-        }
-
-        // Import
-        const importFile = document.getElementById('importFile');
-        if (importFile) {
-            importFile.addEventListener('change', (e) => this.handleImportJSON(e));
-        }
-    }
-
-    // ===== VACANZE =====
-    handleCreateVacation() {
-        const name = document.getElementById('vacationName').value.trim();
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        const budget = document.getElementById('budget').value;
-
-        if (!name || !startDate || !endDate || !budget) {
-            alert('⚠️ Compila tutti i campi!');
-            return;
-        }
-
-        const id = Date.now();
-        const vacation = {
-            id: id,
-            nome: name,
-            dataInizio: startDate,
-            dataFine: endDate,
-            budget: parseFloat(budget),
-            giorni: this.generateDays(startDate, endDate),
-            createdAt: new Date().toISOString()
-        };
-
-        this.vacations.push(vacation);
-        this.saveToStorage();
-
-        // Ripulisci form
-        document.getElementById('vacationName').value = '';
-        document.getElementById('startDate').value = '';
-        document.getElementById('endDate').value = '';
-        document.getElementById('budget').value = '';
-
-        this.render();
-    }
-
-    generateDays(startDate, endDate) {
-        const days = [];
-        const current = new Date(startDate);
-        const end = new Date(endDate);
-
-        while (current <= end) {
-            days.push({
-                data: current.toISOString().split('T')[0],
-                attivita: []
-            });
-            current.setDate(current.getDate() + 1);
-        }
-
-        return days;
-    }
-
-    deleteVacation(id) {
-        if (confirm('Sei sicuro di voler eliminare questa vacanza?')) {
-            this.vacations = this.vacations.filter(v => v.id !== id);
-            this.currentVacationId = null;
-            this.saveToStorage();
-            this.render();
-        }
-    }
-
-    selectVacation(id) {
-        this.currentVacationId = id;
-        this.render();
-    }
-
-    // ===== ATTIVITÀ =====
-    addActivityFromForm(vacationId) {
-        const name = document.getElementById('activityName').value.trim();
-        const timeSlot = document.getElementById('timeSlot').value;
-        const category = document.getElementById('category').value;
-        const cost = document.getElementById('activityCost').value;
-        const date = document.getElementById('activityDate').value;
-        const link = document.getElementById('activityLink').value.trim();
-
-        if (!name || !cost) {
-            alert('⚠️ Compila nome e costo!');
-            return;
-        }
-
-        const vacation = this.vacations.find(v => v.id === vacationId);
-        if (!vacation) return;
-
-        const day = vacation.giorni.find(d => d.data === date);
-        if (!day) return;
-
-        const activity = {
-            id: Date.now(),
-            nome: name,
-            timeSlot: timeSlot,
-            categoria: category,
-            costo: parseFloat(cost),
-            link: link,
-            foto: []
-        };
-
-        day.attivita.push(activity);
-        this.saveToStorage();
-
-        // Ripulisci form
-        document.getElementById('activityName').value = '';
-        document.getElementById('activityCost').value = '';
-        document.getElementById('activityLink').value = '';
-
-        this.render();
-    }
-
-    editActivity(vacationId, dayDate, activityId) {
-        const vacation = this.vacations.find(v => v.id === vacationId);
-        if (!vacation) return;
-
-        const day = vacation.giorni.find(d => d.data === dayDate);
-        if (!day) return;
-
-        const activity = day.attivita.find(a => a.id === activityId);
-        if (!activity) return;
-
-        // Crea una finestra di dialogo per modificare
-        const newName = prompt('Nome attività:', activity.nome);
-        if (newName === null) return; // Annullato
-
-        const newCost = prompt('Costo (€):', activity.costo);
-        if (newCost === null) return;
-
-        const newLink = prompt('Link/URL (opzionale):', activity.link || '');
-        if (newLink === null) return;
-
-        const newTimeSlot = prompt('Orario (mattina/pomeriggio/sera):', activity.timeSlot);
-        if (newTimeSlot === null) return;
-
-        const newCategory = prompt('Categoria (alloggio/ristorazione/trasporto/attrazione/shopping/altro):', activity.categoria);
-        if (newCategory === null) return;
-
-        // Aggiorna l'attività
-        activity.nome = newName.trim() || activity.nome;
-        activity.costo = parseFloat(newCost) || activity.costo;
-        activity.link = newLink.trim();
-        activity.timeSlot = newTimeSlot || activity.timeSlot;
-        activity.categoria = newCategory || activity.categoria;
-
-        this.saveToStorage();
-        this.render();
-        alert('✅ Attività modificata!');
-    }
-
-    deleteActivity(vacationId, dayDate, activityId) {
-        if (confirm('Elimina questa attività?')) {
-            const vacation = this.vacations.find(v => v.id === vacationId);
-            if (!vacation) return;
-
-            const day = vacation.giorni.find(d => d.data === dayDate);
-            if (!day) return;
-
-            day.attivita = day.attivita.filter(a => a.id !== activityId);
-            this.saveToStorage();
-            this.render();
-        }
-    }
-
-    // ===== FOTO =====
-    handlePhotoUpload(event, vacationId, dayDate, activityId) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        if (file.size > 1000000) {
-            alert('⚠️ File troppo grande! Max 1MB');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const vacation = this.vacations.find(v => v.id === vacationId);
-            if (!vacation) return;
-
-            const day = vacation.giorni.find(d => d.data === dayDate);
-            if (!day) return;
-
-            const activity = day.attivita.find(a => a.id === activityId);
-            if (!activity) return;
-
-            if (!activity.foto) activity.foto = [];
-
-            if (activity.foto.length >= 3) {
-                alert('⚠️ Massimo 3 foto per attività!');
-                return;
-            }
-
-            activity.foto.push(e.target.result);
-            this.saveToStorage();
-            this.render();
-        };
-
-        reader.readAsDataURL(file);
-    }
-
-    deletePhoto(vacationId, dayDate, activityId, photoIndex) {
-        const vacation = this.vacations.find(v => v.id === vacationId);
-        if (!vacation) return;
-
-        const day = vacation.giorni.find(d => d.data === dayDate);
-        if (!day) return;
-
-        const activity = day.attivita.find(a => a.id === activityId);
-        if (!activity || !activity.foto) return;
-
-        activity.foto.splice(photoIndex, 1);
-        this.saveToStorage();
-        this.render();
-    }
-
-    // ===== CALCOLI =====
-    calculateCategorySpending(vacationId, category) {
-        const vacation = this.vacations.find(v => v.id === vacationId);
-        if (!vacation) return 0;
-
-        let total = 0;
-        vacation.giorni.forEach(day => {
-            day.attivita.forEach(activity => {
-                if (activity.categoria === category) {
-                    total += activity.costo || 0;
-                }
-            });
-        });
-
-        return total;
-    }
-
-    calculateTotalSpending(vacationId) {
-        const vacation = this.vacations.find(v => v.id === vacationId);
-        if (!vacation) return 0;
-
-        let total = 0;
-        vacation.giorni.forEach(day => {
-            day.attivita.forEach(activity => {
-                total += activity.costo || 0;
-            });
-        });
-
-        return total;
-    }
-
-    // ===== EXPORT/IMPORT =====
-    exportJSON() {
-        const dataStr = JSON.stringify(this.vacations, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(dataBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `vacanze-${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-        URL.revokeObjectURL(url);
-    }
-
-    handleImportJSON(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const data = JSON.parse(e.target.result);
-                if (Array.isArray(data)) {
-                    this.vacations = data;
-                    this.saveToStorage();
-                    this.render();
-                    alert('✅ Dati importati con successo!');
-                } else {
-                    alert('❌ Formato file non valido!');
-                }
-            } catch (err) {
-                alert('❌ Errore durante l\'importazione: ' + err.message);
-            }
-        };
-
-        reader.readAsText(file);
-        event.target.value = '';
-    }
-
-    // ===== RENDER =====
-    render() {
-        this.renderVacationList();
-        this.renderVacationDetail();
-    }
-
-    renderVacationList() {
-        const container = document.getElementById('vacationList');
-        if (!container) return;
-
-        if (this.vacations.length === 0) {
-            container.innerHTML = '<p style="color: #999;">Nessuna vacanza ancora.</p>';
-            return;
-        }
-
-        container.innerHTML = this.vacations.map(vacation => {
-            const totalSpent = this.calculateTotalSpending(vacation.id);
-            const budget = vacation.budget || 0;
-            const percentage = budget > 0 ? (totalSpent / budget * 100) : 0;
-            const isActive = this.currentVacationId === vacation.id ? 'border-color: #667eea; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);' : '';
-
-            return `
-                <div class="vacation-card" style="${isActive}" onclick="planner.selectVacation(${vacation.id})">
-                    <h3>${vacation.nome}</h3>
-                    <p>📅 ${vacation.dataInizio}</p>
-                    <p>→ ${vacation.dataFine}</p>
-                    <p>💰 Budget: €${budget.toFixed(2)}</p>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${Math.min(percentage, 100)}%"></div>
-                    </div>
-                    <p style="font-size: 0.85em; color: #666;">€${totalSpent.toFixed(2)} / €${budget.toFixed(2)}</p>
-                    <button class="btn-delete" onclick="planner.deleteVacation(${vacation.id}); event.stopPropagation();">🗑️ Elimina</button>
-                </div>
-            `;
-        }).join('');
-    }
-
-    renderVacationDetail() {
-        const itineraryContainer = document.getElementById('vacationDetail');
-        if (!itineraryContainer) return;
-
-        if (!this.currentVacationId) {
-            itineraryContainer.innerHTML = '<p style="color: #999;">Seleziona una vacanza per iniziare.</p>';
-            return;
-        }
-
-        const vacation = this.vacations.find(v => v.id === this.currentVacationId);
-        if (!vacation) return;
-
-        let html = `
-            <div class="vacation-detail">
-                <h2>${vacation.nome}</h2>
-                <p>📅 ${vacation.dataInizio} → ${vacation.dataFine}</p>
-                <p>💰 Budget: €${vacation.budget.toFixed(2)}</p>
-
-                <h3>➕ Aggiungi Attività</h3>
-                <div class="form-group">
-                    <label>Nome Attività</label>
-                    <input type="text" id="activityName" placeholder="Es: Cena al ristorante">
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div class="form-group">
-                        <label>Orario</label>
-                        <select id="timeSlot">
-                            <option value="mattina">🌅 Mattina</option>
-                            <option value="pomeriggio">☀️ Pomeriggio</option>
-                            <option value="sera">🌙 Sera</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Categoria</label>
-                        <select id="category">
-                            <option value="alloggio">🏨 Alloggio</option>
-                            <option value="ristorazione">🍽️ Ristorazione</option>
-                            <option value="trasporto">🚗 Trasporto</option>
-                            <option value="attrazione">🎢 Attrazione</option>
-                            <option value="shopping">🛍️ Shopping</option>
-                            <option value="altro">📌 Altro</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div class="form-group">
-                        <label>Costo (€)</label>
-                        <input type="number" id="activityCost" placeholder="0.00" step="0.01" min="0">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Giorno</label>
-                        <select id="activityDate">
-        `;
-
-        vacation.giorni.forEach(day => {
-            html += `<option value="${day.data}">${day.data}</option>`;
-        });
-
-        html += `
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Link/URL (opzionale)</label>
-                    <input type="url" id="activityLink" placeholder="https://..." style="width: 100%;">
-                </div>
-
-                <button class="btn" onclick="planner.addActivityFromForm(${vacation.id})">➕ Aggiungi Attività</button>
-
-                <h3 style="margin-top: 30px;">📅 Itinerario</h3>
-        `;
-
-        vacation.giorni.forEach(day => {
-            html += `
-                <div class="day-section">
-                    <h4>📅 ${day.data}</h4>
-            `;
-
-            if (day.attivita.length === 0) {
-                html += '<p style="color: #999;">Nessuna attività questo giorno.</p>';
-            } else {
-                day.attivita.forEach(activity => {
-                    const cost = activity.costo || 0;
-                    html += `
-                        <div class="activity-card">
-                            <h5>${activity.nome}</h5>
-                            <p>
-                                <span>${this.getTimeEmoji(activity.timeSlot)} ${activity.timeSlot}</span> |
-                                <span>${this.getCategoryEmoji(activity.categoria)} ${activity.categoria}</span> |
-                                <span>💰 €${cost.toFixed(2)}</span>
-                            </p>
-                    `;
-
-                    if (activity.link) {
-                        html += `<p><a href="${activity.link}" target="_blank" style="color: #667eea; text-decoration: none; font-weight: bold;">🔗 ${activity.link}</a></p>`;
-                    }
-
-                    if (activity.foto && activity.foto.length > 0) {
-                        html += '<div class="photo-gallery">';
-                        activity.foto.forEach((photo, idx) => {
-                            html += `
-                                <div class="photo-item">
-                                    <img src="${photo}" alt="Foto">
-                                    <button class="btn-delete-photo" onclick="planner.deletePhoto(${vacation.id}, '${day.data}', ${activity.id}, ${idx}); event.stopPropagation();">✕</button>
-                                </div>
-                            `;
-                        });
-                        html += '</div>';
-                    }
-
-                    html += `
-                            <input type="file" accept="image/*" onchange="planner.handlePhotoUpload(event, ${vacation.id}, '${day.data}', ${activity.id})" class="photo-input" style="font-size: 0.9em;">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                                <button class="btn" onclick="planner.editActivity(${vacation.id}, '${day.data}', ${activity.id})">✏️ Modifica</button>
-                                <button class="btn-delete" onclick="planner.deleteActivity(${vacation.id}, '${day.data}', ${activity.id})">🗑️ Elimina</button>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-
-            html += '</div>';
-        });
-
-        html += '</div>';
-        itineraryContainer.innerHTML = html;
-    }
-
-    renderBudgetTab() {
-        const container = document.getElementById('budgetDetail');
-        if (!container) return;
-
-        if (!this.currentVacationId) {
-            container.innerHTML = '<p>Seleziona una vacanza.</p>';
-            return;
-        }
-
-        const vacation = this.vacations.find(v => v.id === this.currentVacationId);
-        if (!vacation) return;
-
-        const categories = ['alloggio', 'ristorazione', 'trasporto', 'attrazione', 'shopping', 'altro'];
-        const totalSpent = this.calculateTotalSpending(vacation.id);
-        const budget = vacation.budget || 0;
-
-        let html = `
-            <div class="vacation-detail">
-                <h2>💰 Budget Dettagliato</h2>
-                <p>Budget Totale: <strong>€${budget.toFixed(2)}</strong></p>
-                <p>Speso Finora: <strong>€${totalSpent.toFixed(2)}</strong></p>
-                <p>Rimanente: <strong style="color: ${totalSpent > budget ? '#dc3545' : '#28a745'};">€${(budget - totalSpent).toFixed(2)}</strong></p>
-
-                <div class="budget-breakdown">
-        `;
-
-        categories.forEach(cat => {
-            const spent = this.calculateCategorySpending(vacation.id, cat);
-            const percentage = budget > 0 ? (spent / budget * 100) : 0;
-            const categoryEmoji = this.getCategoryEmoji(cat);
-
-            html += `
-                <div class="budget-item">
-                    <p>${categoryEmoji} ${cat.toUpperCase()}</p>
-                    <p style="font-size: 1.2em; color: #667eea; margin-bottom: 8px;">€${spent.toFixed(2)}</p>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${Math.min(percentage, 100)}%; background: ${spent > budget / 6 ? '#ffc107' : '#667eea'};"></div>
-                    </div>
-                </div>
-            `;
-        });
-
-        html += '</div></div>';
-        container.innerHTML = html;
-    }
-
-    renderSettingsTab() {
-        const container = document.getElementById('settingsDetail');
-        if (!container) return;
-
-        const status = this.getBuildStatus();
-
-        let html = `
-            <div class="vacation-detail">
-                <h2>⚙️ Informazioni App</h2>
-
-                <div class="settings-group">
-                    <h3>📱 Versione</h3>
-                    <p><strong>${status.version}</strong></p>
-                </div>
-
-                <div class="settings-group">
-                    <h3>✨ Funzionalità</h3>
-                    <ul style="list-style: none; padding: 0;">
-        `;
-
-        Object.entries(status.features).forEach(([feature, enabled]) => {
-            const icon = enabled ? '✅' : '❌';
-            const featureName = feature.replace(/([A-Z])/g, ' $1').trim();
-            html += `<li style="padding: 5px 0;">${icon} ${featureName}</li>`;
-        });
-
-        html += `
-                    </ul>
-                </div>
-
-                <div class="settings-group">
-                    <h3>💾 Memoria</h3>
-                    <p>Usata: <strong>${(status.storage.used / 1024).toFixed(2)} KB</strong> / ${(status.storage.limit / 1024 / 1024).toFixed(0)} MB</p>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${status.storage.percentage}%"></div>
-                    </div>
-                    <p style="color: #666; font-size: 0.9em;">${status.storage.percentage}% utilizzato</p>
-                </div>
-
-                <div class="settings-group">
-                    <h3>📊 Statistiche</h3>
-                    <p>Vacanze Totali: <strong>${this.vacations.length}</strong></p>
-                    <p>Giorni Pianificati: <strong>${this.vacations.reduce((sum, v) => sum + v.giorni.length, 0)}</strong></p>
-                    <p>Attività Create: <strong>${this.vacations.reduce((sum, v) => sum + v.giorni.reduce((s, d) => s + d.attivita.length, 0), 0)}</strong></p>
-                </div>
-            </div>
-        `;
-
-        container.innerHTML = html;
-    }
-
-    getBuildStatus() {
-        const totalData = JSON.stringify(localStorage).length;
-        return {
-            version: '3.4-with-edit-activity',
-            features: {
-                'Vacation Management': true,
-                'Itinerary Planning': true,
-                'Activity Links': true,
-                'Activity Editing': true,
-                'Photo Support': true,
-                'Budget Tracking': true,
-                'Data Export/Import': true,
-                'Dark Mode': false,
-                'Google Maps': false,
-                'QR Code': false
-            },
-            storage: {
-                used: totalData,
-                limit: 5242880,
-                percentage: ((totalData / 5242880) * 100).toFixed(2)
-            }
-        };
-    }
-
-    getTimeEmoji(timeSlot) {
-        const emojis = {
-            'mattina': '🌅',
-            'pomeriggio': '☀️',
-            'sera': '🌙'
-        };
-        return emojis[timeSlot] || '⏰';
-    }
-
-    getCategoryEmoji(category) {
-        const emojis = {
-            'alloggio': '🏨',
-            'ristorazione': '🍽️',
-            'trasporto': '🚗',
-            'attrazione': '🎢',
-            'shopping': '🛍️',
-            'altro': '📌'
-        };
-        return emojis[category] || '📌';
-    }
+// ==================== SUPABASE CONFIG ====================
+const SUPABASE_URL = 'https://oxavcnclbbibactjquse.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94YXZjbmNsYmJpYmFjdGpxdXNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODQyMTIsImV4cCI6MjEwMDI2MDIxMn0.193nK6TYTK91B1TkXI-nWIl7Z40zxrr83vGbu4Zgq4s';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ==================== USER ID ====================
+let currentUserId = localStorage.getItem('vacanze_user_id');
+if (!currentUserId) {
+  currentUserId = 'user_' + Math.random().toString(36).substr(2, 9);
+  localStorage.setItem('vacanze_user_id', currentUserId);
 }
 
-// ===== INSTANZA GLOBALE =====
-let planner;
+// ==================== VACATION PLANNER CLASS ====================
+class VacationPlanner {
+  constructor() {
+    this.vacations = [];
+    this.currentVacationIndex = -1;
+    this.init();
+  }
 
-document.addEventListener('DOMContentLoaded', function() {
-    planner = new VacationPlanner();
+  async init() {
+    await this.loadVacationsFromSupabase();
+    this.render();
+    this.setupEventListeners();
+    this.setupAutoSync();
+  }
+
+  // ==================== SUPABASE OPERATIONS ====================
+  async loadVacationsFromSupabase() {
+    try {
+      const { data, error } = await supabase
+        .from('vacations')
+        .select('*')
+        .eq('user_id', currentUserId);
+
+      if (error) throw error;
+
+      this.vacations = data.map(row => ({
+        id: row.id,
+        name: row.name,
+        ...row.data
+      })) || [];
+
+      console.log('✅ Vacanze caricate da Supabase:', this.vacations);
+    } catch (error) {
+      console.error('❌ Errore caricamento Supabase:', error);
+      this.loadVacationsFromLocalStorage();
+    }
+  }
+
+  loadVacationsFromLocalStorage() {
+    const saved = localStorage.getItem('vacanze_data');
+    this.vacations = saved ? JSON.parse(saved) : [];
+  }
+
+  async saveVacationToSupabase(vacation) {
+    try {
+      const { id, name, ...data } = vacation;
+      
+      if (id && id.startsWith('local_')) {
+        // È una nuova vacanza, inserisci
+        const { data: newRow, error } = await supabase
+          .from('vacations')
+          .insert([{
+            user_id: currentUserId,
+            name: name,
+            data: data
+          }])
+          .select();
+
+        if (error) throw error;
+        
+        vacation.id = newRow[0].id;
+        return vacation;
+      } else {
+        // Aggiorna vacanza esistente
+        const { error } = await supabase
+          .from('vacations')
+          .update({
+            name: name,
+            data: data,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', id);
+
+        if (error) throw error;
+        return vacation;
+      }
+    } catch (error) {
+      console.error('❌ Errore salvataggio Supabase:', error);
+      throw error;
+    }
+  }
+
+  async deleteVacationFromSupabase(vacationId) {
+    try {
+      const { error } = await supabase
+        .from('vacations')
+        .delete()
+        .eq('id', vacationId);
+
+      if (error) throw error;
+      console.log('✅ Vacanza eliminata da Supabase');
+    } catch (error) {
+      console.error('❌ Errore eliminazione Supabase:', error);
+    }
+  }
+
+  // ==================== AUTO SYNC ====================
+  setupAutoSync() {
+    // Sincronizza ogni 10 secondi
+    setInterval(async () => {
+      await this.loadVacationsFromSupabase();
+      this.render();
+    }, 10000);
+  }
+
+  // ==================== VACATION METHODS ====================
+  addVacation(name) {
+    const vacation = {
+      id: 'local_' + Date.now(),
+      name: name,
+      activities: [],
+      budget: 0,
+      expenses: 0
+    };
+
+    this.vacations.push(vacation);
+    this.saveVacationToSupabase(vacation);
+    this.render();
+  }
+
+  deleteVacation(index) {
+    const vacation = this.vacations[index];
+    if (vacation.id && !vacation.id.startsWith('local_')) {
+      this.deleteVacationFromSupabase(vacation.id);
+    }
+    this.vacations.splice(index, 1);
+    this.currentVacationIndex = -1;
+    this.render();
+  }
+
+  // ==================== ACTIVITY METHODS ====================
+  addActivity(name, cost, link, category) {
+    if (this.currentVacationIndex < 0) return;
+
+    const vacation = this.vacations[this.currentVacationIndex];
+    if (!vacation.activities) vacation.activities = [];
+
+    const activity = {
+      id: 'act_' + Date.now(),
+      name: name,
+      cost: parseFloat(cost) || 0,
+      link: link || '',
+      category: category || 'Altro',
+      photos: [],
+      timeSlot: ''
+    };
+
+    vacation.activities.push(activity);
+    vacation.expenses = (vacation.expenses || 0) + activity.cost;
+    this.saveVacationToSupabase(vacation);
+    this.render();
+  }
+
+  updateActivity(activityIndex, name, cost, link, category, timeSlot) {
+    if (this.currentVacationIndex < 0) return;
+
+    const vacation = this.vacations[this.currentVacationIndex];
+    const activity = vacation.activities[activityIndex];
+
+    const oldCost = activity.cost;
+    activity.name = name;
+    activity.cost = parseFloat(cost) || 0;
+    activity.link = link;
+    activity.category = category;
+    activity.timeSlot = timeSlot;
+
+    vacation.expenses = (vacation.expenses || 0) - oldCost + activity.cost;
+    this.saveVacationToSupabase(vacation);
+    this.render();
+  }
+
+  editActivity(activityIndex) {
+    if (this.currentVacationIndex < 0) return;
+
+    const vacation = this.vacations[this.currentVacationIndex];
+    const activity = vacation.activities[activityIndex];
+
+    const newName = prompt('Nome attività:', activity.name);
+    if (newName === null) return;
+
+    const newCost = prompt('Costo (€):', activity.cost);
+    if (newCost === null) return;
+
+    const newLink = prompt('Link:', activity.link || '');
+    if (newLink === null) return;
+
+    const newCategory = prompt('Categoria:', activity.category || 'Altro');
+    if (newCategory === null) return;
+
+    const newTimeSlot = prompt('Orario:', activity.timeSlot || '');
+    if (newTimeSlot === null) return;
+
+    this.updateActivity(activityIndex, newName, newCost, newLink, newCategory, newTimeSlot);
+  }
+
+  deleteActivity(activityIndex) {
+    if (this.currentVacationIndex < 0) return;
+
+    const vacation = this.vacations[this.currentVacationIndex];
+    const activity = vacation.activities[activityIndex];
+
+    vacation.expenses = (vacation.expenses || 0) - activity.cost;
+    vacation.activities.splice(activityIndex, 1);
+
+    this.saveVacationToSupabase(vacation);
+    this.render();
+  }
+
+  // ==================== PHOTO METHODS ====================
+  addPhoto(activityIndex, file) {
+    if (this.currentVacationIndex < 0) return;
+
+    const vacation = this.vacations[this.currentVacationIndex];
+    const activity = vacation.activities[activityIndex];
+
+    if (!activity.photos) activity.photos = [];
+    if (activity.photos.length >= 3) {
+      alert('Massimo 3 foto per attività');
+      return;
+    }
+
+    if (file.size > 1024 * 1024) {
+      alert('Foto troppo grande (max 1MB)');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      activity.photos.push(e.target.result);
+      this.saveVacationToSupabase(vacation);
+      this.render();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  deletePhoto(activityIndex, photoIndex) {
+    if (this.currentVacationIndex < 0) return;
+
+    const vacation = this.vacations[this.currentVacationIndex];
+    vacation.activities[activityIndex].photos.splice(photoIndex, 1);
+
+    this.saveVacationToSupabase(vacation);
+    this.render();
+  }
+
+  // ==================== BUDGET METHODS ====================
+  updateBudget(budget) {
+    if (this.currentVacationIndex < 0) return;
+
+    this.vacations[this.currentVacationIndex].budget = parseFloat(budget) || 0;
+    this.saveVacationToSupabase(this.vacations[this.currentVacationIndex]);
+    this.render();
+  }
+
+  // ==================== EXPORT/IMPORT ====================
+  exportData() {
+    const dataStr = JSON.stringify(this.vacations, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'vacanze_export.json';
+    link.click();
+  }
+
+  importData(file) {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const imported = JSON.parse(e.target.result);
+        
+        for (const vacation of imported) {
+          const newVac = {
+            id: 'local_' + Date.now(),
+            name: vacation.name,
+            activities: vacation.activities || [],
+            budget: vacation.budget || 0,
+            expenses: vacation.expenses || 0
+          };
+          await this.saveVacationToSupabase(newVac);
+        }
+
+        await this.loadVacationsFromSupabase();
+        this.render();
+        alert('✅ Dati importati con successo!');
+      } catch (error) {
+        alert('❌ Errore importazione: ' + error.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // ==================== RENDER ====================
+  render() {
+    const app = document.getElementById('app');
+
+    if (this.currentVacationIndex < 0) {
+      this.renderVacationList(app);
+    } else {
+      this.renderVacationDetail(app);
+    }
+  }
+
+  renderVacationList(app) {
+    app.innerHTML = `
+      <div class="container">
+        <header>
+          <h1>🏖️ Vacanze Cilento</h1>
+          <p style="font-size: 12px; color: #999;">v3.5-Supabase | ID: ${currentUserId}</p>
+        </header>
+
+        <section>
+          <h2>Le mie vacanze</h2>
+          <div class="vacation-list">
+            ${this.vacations.map((v, i) => `
+              <div class="vacation-card">
+                <div>
+                  <h3>${v.name}</h3>
+                  <p>📍 ${v.activities?.length || 0} attività</p>
+                  <p>💰 €${(v.expenses || 0).toFixed(2)} / €${(v.budget || 0).toFixed(2)}</p>
+                </div>
+                <div class="card-buttons">
+                  <button onclick="planner.currentVacationIndex = ${i}; planner.render();">📖</button>
+                  <button onclick="planner.deleteVacation(${i}); planner.render();">🗑️</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div style="margin-top: 20px;">
+            <input type="text" id="vacationName" placeholder="Nome vacanza" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+            <button onclick="planner.addVacation(document.getElementById('vacationName').value); document.getElementById('vacationName').value = '';" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+              ➕ Aggiungi vacanza
+            </button>
+          </div>
+        </section>
+
+        <section style="margin-top: 20px;">
+          <h2>⚙️ Impostazioni</h2>
+          <button onclick="planner.exportData();" style="width: 100%; padding: 10px; margin-bottom: 10px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            📥 Esporta dati
+          </button>
+          <input type="file" id="importFile" accept=".json" style="display: none;">
+          <button onclick="document.getElementById('importFile').click();" style="width: 100%; padding: 10px; background: #FF9800; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            📤 Importa dati
+          </button>
+        </section>
+      </div>
+    `;
+
+    document.getElementById('importFile').addEventListener('change', (e) => {
+      if (e.target.files[0]) {
+        this.importData(e.target.files[0]);
+      }
+    });
+  }
+
+  renderVacationDetail(app) {
+    const vacation = this.vacations[this.currentVacationIndex];
+
+    app.innerHTML = `
+      <div class="container">
+        <header>
+          <button onclick="planner.currentVacationIndex = -1; planner.render();" style="background: none; border: none; font-size: 24px; cursor: pointer;">⬅️</button>
+          <h1>${vacation.name}</h1>
+        </header>
+
+        <section>
+          <h2>💰 Budget</h2>
+          <input type="number" id="budgetInput" placeholder="Budget totale" value="${vacation.budget || 0}" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+          <button onclick="planner.updateBudget(document.getElementById('budgetInput').value); planner.render();" style="width: 100%; padding: 10px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            💾 Salva budget
+          </button>
+          <p style="margin-top: 10px;">Spese: €${(vacation.expenses || 0).toFixed(2)} / €${(vacation.budget || 0).toFixed(2)}</p>
+          <div style="background: #f0f0f0; height: 20px; border-radius: 10px; overflow: hidden; margin-top: 10px;">
+            <div style="background: ${(vacation.expenses || 0) > (vacation.budget || 0) ? '#ff6b6b' : '#4CAF50'}; height: 100%; width: ${Math.min(100, ((vacation.expenses || 0) / (vacation.budget || 0) * 100) || 0)}%;"></div>
+          </div>
+        </section>
+
+        <section>
+          <h2>📅 Attività</h2>
+          <div class="activity-list">
+            ${(vacation.activities || []).map((activity, i) => `
+              <div class="activity-card">
+                <div>
+                  <h3>${activity.name}</h3>
+                  <p>💰 €${activity.cost || 0}</p>
+                  <p>🏷️ ${activity.category || 'Altro'}</p>
+                  ${activity.timeSlot ? `<p>⏰ ${activity.timeSlot}</p>` : ''}
+                  ${activity.link ? `<p><a href="${activity.link}" target="_blank">🔗 Link</a></p>` : ''}
+                </div>
+                <div class="card-buttons">
+                  <button onclick="planner.editActivity(${i});">✏️</button>
+                  <button onclick="planner.deleteActivity(${i}); planner.render();">🗑️</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div style="margin-top: 20px;">
+            <input type="text" id="activityName" placeholder="Nome attività" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+            <input type="number" id="activityCost" placeholder="Costo (€)" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+            <input type="text" id="activityLink" placeholder="Link (opzionale)" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+            <input type="text" id="activityCategory" placeholder="Categoria" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+            <input type="text" id="activityTimeSlot" placeholder="Orario (opzionale)" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+            <button onclick="planner.addActivity(document.getElementById('activityName').value, document.getElementById('activityCost').value, document.getElementById('activityLink').value, document.getElementById('activityCategory').value); document.getElementById('activityName').value = ''; document.getElementById('activityCost').value = ''; document.getElementById('activityLink').value = ''; document.getElementById('activityCategory').value = '';" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+              ➕ Aggiungi attività
+            </button>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  setupEventListeners() {
+    // Auto-save per input
+    document.addEventListener('change', () => {
+      if (this.currentVacationIndex >= 0) {
+        this.saveVacationToSupabase(this.vacations[this.currentVacationIndex]);
+      }
+    });
+  }
+}
+
+// ==================== INIT ====================
+let planner;
+document.addEventListener('DOMContentLoaded', () => {
+  planner = new VacationPlanner();
 });
