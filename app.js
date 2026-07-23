@@ -6,11 +6,12 @@ let supabase;
 
 // Aspetta che Supabase sia caricato
 function initSupabase() {
-  if (window.supabase && window.supabase.createClient) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  if (window.supabase && window.supabase.SupabaseClient) {
+    supabase = new window.supabase.SupabaseClient(SUPABASE_URL, SUPABASE_KEY);
     console.log('✅ Supabase connesso!');
     return true;
   }
+  console.error('❌ Supabase non caricato!');
   return false;
 }
 
