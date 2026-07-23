@@ -386,6 +386,19 @@
         </div>
     </div>
    
+    <script>
+      // Carica Supabase da unpkg
+      var script = document.createElement('script');
+      script.src = 'https://unpkg.com/@supabase/supabase-js@2';
+      script.onload = function() {
+        console.log('✅ Supabase CDN caricato!');
+        console.log('window.supabase:', window.supabase);
+      };
+      script.onerror = function() {
+        console.error('❌ Errore caricamento Supabase');
+      };
+      document.head.appendChild(script);
+    </script>
     <script src="app.js"></script>
 
     <script>
