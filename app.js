@@ -1,3 +1,13 @@
+// Verifica che createClient sia disponibile
+console.log('createClient:', typeof window.createClient);
+
+const supabase = window.createClient(
+    'https://xxxxxxxxxxx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+);
+
+console.log('Supabase istanziato:', supabase);
+
 // ==================== SUPABASE CONFIG ====================
 const SUPABASE_URL = 'https://oxavcnclbbibactjquse.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94YXZjbmNsYmJpYmFjdGpxdXNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODQyMTIsImV4cCI6MjEwMDI2MDIxMn0.193nK6TYTK91B1TkXI-nWIl7Z40zxrr83vGbu4Zgq4s';
