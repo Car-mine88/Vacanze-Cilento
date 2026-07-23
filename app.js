@@ -1,7 +1,25 @@
 // ==================== SUPABASE CONFIG ====================
 const SUPABASE_URL = 'https://oxavcnclbbibactjquse.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94YXZjbmNsYmJpYmFjdGpxdXNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODQyMTIsImV4cCI6MjEwMDI2MDIxMn0.193nK6TYTK91B1TkXI-nWIl7Z40zxrr83vGbu4Zgq4s';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let supabase;
+
+// Aspetta che Supabase sia caricato
+function initSupabase() {
+  if (window.supabase && window.supabase.createClient) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    console.log('✅ Supabase connesso!');
+    return true;
+  }
+  return false;
+}
+
+// Tenta di inizializzare subito
+if (!initSupabase()) {
+  // Se non è pronto, aspetta 500ms e riprova
+  setTimeout(initSupabase, 500);
+}
+
 
 // ==================== USER ID ====================
 let currentUserId = localStorage.getItem('vacanze_user_id');
