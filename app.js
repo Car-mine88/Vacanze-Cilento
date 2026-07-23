@@ -12,24 +12,25 @@ console.log('Supabase istanziato:', supabase);
 const SUPABASE_URL = 'https://oxavcnclbbibactjquse.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94YXZjbmNsYmJpYmFjdGpxdXNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2ODQyMTIsImV4cCI6MjEwMDI2MDIxMn0.193nK6TYTK91B1TkXI-nWIl7Z40zxrr83vGbu4Zgq4s';
 
-let supabase;
+let supabase = null;
 
-// Aspetta che Supabase sia caricato
-function initSupabase() {
-  if (window.supabase && window.supabase.SupabaseClient) {
-    supabase = new window.supabase.SupabaseClient(SUPABASE_URL, SUPABASE_KEY);
-    console.log('✅ Supabase connesso!');
-    return true;
+// Carica Supabase da CDN e inizializza
+async function initSupabase() {
+  if (!window.supabase) {
+    // Carica il CDN dinamicamente
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.0.0/dist/main.min.js';
+    script.onload = () => {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      console.log('✅ Supabase connesso!');
+    };
+    document.head.appendChild(script);
   }
-  console.error('❌ Supabase non caricato!');
-  return false;
 }
 
-// Tenta di inizializzare subito
-if (!initSupabase()) {
-  // Se non è pronto, aspetta 500ms e riprova
-  setTimeout(initSupabase, 500);
-}
+// Inizializza subito
+initSupabase();
+
 
 
 // ==================== USER ID ====================
