@@ -469,3 +469,7 @@ let planner;
 document.addEventListener('DOMContentLoaded', () => {
   planner = new VacationPlanner();
 });
+// Esponi le variabili globali
+window.supabase = supabase;
+window.VacationPlanner = VacationPlanner;
+window.currentUserId = currentUserId;
